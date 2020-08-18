@@ -1,0 +1,14 @@
+# Name of the bot
+name = Dirk
+
+# Discord production api key
+discord.prod.api =
+
+# Discord development api key
+discord.dev.api =
+
+# If the bot is in production state
+discord.production = false
+
+# Command prefix
+discord.prefix = !
