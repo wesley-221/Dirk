@@ -1,4 +1,4 @@
-package com.dirk.helper;
+package com.beneluwux.helper;
 
 public class ConsoleColors {
     // Reset

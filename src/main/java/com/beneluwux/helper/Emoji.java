@@ -1,4 +1,4 @@
-package com.dirk.helper;
+package com.beneluwux.helper;
 
 public class Emoji {
     public static String NETHERLANDS_FLAG = "\uD83C\uDDF3\uD83C\uDDF1";

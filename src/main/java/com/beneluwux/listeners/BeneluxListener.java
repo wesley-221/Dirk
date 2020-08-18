@@ -1,7 +1,7 @@
-package com.dirk.listeners;
+package com.beneluwux.listeners;
 
-import com.dirk.helper.Emoji;
-import com.dirk.helper.Settings;
+import com.beneluwux.helper.Emoji;
+import com.beneluwux.helper.Settings;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
@@ -26,7 +26,6 @@ public class BeneluxListener implements MessageCreateListener, ReactionAddListen
                 return;
 
             if (command.equals("setupbeneluxserver") && message.getMessageAuthor().isServerAdmin()) {
-
                 String stringBuilder = "Click on any of the emoji's on this message in order to get the appropriate role. \n" +
                         ":flag_nl: : My nationality is **Dutch**! \n" +
                         ":flag_be: : My nationality is **Belgian**! \n" +

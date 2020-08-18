@@ -1,4 +1,4 @@
-package com.dirk.helper;
+package com.beneluwux.helper;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

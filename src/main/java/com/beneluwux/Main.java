@@ -1,8 +1,8 @@
-package com.dirk;
+package com.beneluwux;
 
-import com.dirk.helper.Log;
-import com.dirk.helper.Settings;
-import com.dirk.listeners.BeneluxListener;
+import com.beneluwux.helper.Log;
+import com.beneluwux.helper.Settings;
+import com.beneluwux.listeners.BeneluxListener;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 
