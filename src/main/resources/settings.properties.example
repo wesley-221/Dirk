@@ -1,6 +1,8 @@
 # Name of the bot
-name = Beneluwux
+name = Dirk
 
+# Discord related settings
+#############################
 # Discord production api key
 discord.prod.api =
 
@@ -12,3 +14,14 @@ discord.production = false
 
 # Command prefix
 discord.prefix = !
+
+# Database related settings
+#############################
+# Database url
+database.url=jdbc:mysql://127.0.0.1:3306/benelux
+
+# Database username
+database.username=root
+
+# Database password
+database.password=
