@@ -79,9 +79,6 @@ public abstract class Command {
         return extraMessage + getCommandHelpFormat();
     }
 
-    /**
-     * The method that gets executed once a command has been run
-     */
     public abstract void execute(MessageCreateEvent messageCreateEvent);
-    public abstract void execute(MessageCreateEvent messageCreateEvent, List<String> commandParams);
+    public abstract void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams);
 }

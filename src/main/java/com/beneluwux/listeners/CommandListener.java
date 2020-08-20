@@ -3,12 +3,17 @@ package com.beneluwux.listeners;
 import com.beneluwux.helper.Log;
 import com.beneluwux.helper.Settings;
 import com.beneluwux.models.command.Command;
+import com.beneluwux.models.command.CommandArgument;
+import com.beneluwux.models.command.CommandParameter;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class CommandListener implements MessageCreateListener {
@@ -53,7 +58,48 @@ public class CommandListener implements MessageCreateListener {
                     return;
                 }
 
-                command.execute(messageCreateEvent, commandSplit);
+                List<CommandParameter> commandParameters = new ArrayList<>();
+                int index = 0;
+
+                // Loop through all parameters
+                for (CommandArgument commandArgument : command.getCommandArguments()) {
+                    String commandSplitIndex = commandSplit.get(index);
+
+                    // Check for the command types and parse them
+                    switch(commandArgument.getCommandType()) {
+                        case String:
+                            commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), commandSplitIndex, true));
+                            break;
+                        case Boolean:
+                            commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), Boolean.valueOf(commandSplitIndex), true));
+                            break;
+                        case Date:
+                            CommandParameter commandParameter;
+
+                            try {
+                                Date formattedDate;
+                                DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                                formattedDate = format.parse(commandSplitIndex);
+
+                                commandParameter = new CommandParameter(commandArgument.getCommandKey(), formattedDate, true);
+                            }
+                            catch(Exception ex) {
+                                commandParameter = new CommandParameter(commandArgument.getCommandKey(), new Date(), false);
+                            }
+
+                            commandParameters.add(commandParameter);
+                            break;
+                        case Integer:
+                            commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), Integer.parseInt(commandSplitIndex), true));
+                            break;
+                        default:
+                            break;
+                    }
+
+                    index ++;
+                }
+
+                command.execute(messageCreateEvent, commandParameters);
             }
             // The command has no arguments
             else {
