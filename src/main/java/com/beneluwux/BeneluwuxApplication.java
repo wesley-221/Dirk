@@ -3,6 +3,7 @@ package com.beneluwux;
 import com.beneluwux.helper.Log;
 import com.beneluwux.helper.Settings;
 import com.beneluwux.listeners.BeneluxListener;
+import com.beneluwux.listeners.CommandListener;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.springframework.boot.SpringApplication;
@@ -25,6 +26,8 @@ public class BeneluwuxApplication {
 
 	public static void initialize(DiscordApi discordApi) {
 		discordApi.addListener(new BeneluxListener());
+		discordApi.addListener(new CommandListener(discordApi, settings));
+
 		discordApi.updateActivity("patat > friet");
 
 		Log.info("Successfully initialized " + settings.name);
