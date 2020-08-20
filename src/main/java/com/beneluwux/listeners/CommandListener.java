@@ -1,5 +1,6 @@
 package com.beneluwux.listeners;
 
+import com.beneluwux.commands.BirthdayCommand;
 import com.beneluwux.helper.Log;
 import com.beneluwux.helper.Settings;
 import com.beneluwux.models.command.Command;
@@ -26,6 +27,8 @@ public class CommandListener implements MessageCreateListener {
     public CommandListener(DiscordApi discordApi, Settings settings) {
         this.discordApi = discordApi;
         this.settings = settings;
+
+        commandList.add(new BirthdayCommand());
 
         initializeCommands();
     }
