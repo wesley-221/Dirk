@@ -2,7 +2,8 @@ package com.beneluwux.models.entities;
 
 import com.beneluwux.models.entities.embeddables.BirthdayId;
 
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 import java.util.Date;
 
 @Entity
@@ -28,13 +29,5 @@ public class Birthday {
 
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
-    }
-
-    @Override
-    public String toString() {
-        return "Birthday{" +
-                "birthdayId=" + birthdayId +
-                ", birthday=" + birthday +
-                '}';
     }
 }
