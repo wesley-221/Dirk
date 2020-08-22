@@ -19,13 +19,21 @@ import java.util.*;
 @Component
 public class CommandListener implements MessageCreateListener, RegisterListener {
     private final String discordCommandPrefix;
-    private final Map<String, Command> allCommands;
+    private final List<Command> allCommands = new ArrayList<>();
 
     @Autowired
     public CommandListener(ApplicationContext applicationContext, @Value("${discord.prefix}") String discordCommandPrefix) {
         this.discordCommandPrefix = discordCommandPrefix;
 
-        allCommands = applicationContext.getBeansOfType(Command.class);
+        // Validate commands
+        for (Command command : applicationContext.getBeansOfType(Command.class).values()) {
+            if(command.getCommandName() == null) {
+                Log.error("Unable to register the command " + command.getClass() + ". You have to set the command name in order for it to be recognized.");
+            }
+            else {
+                allCommands.add(command);
+            }
+        }
     }
 
     @Override
@@ -48,11 +56,20 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
         // Check if the command exists
         if (command != null) {
+            // Check if the command requires administrator privileges
+            if(command.getRequiresAdmin()) {
+                // The user is not an administrator
+                if(!messageCreateEvent.getMessageAuthor().isServerAdmin()) {
+                    messageCreateEvent.getChannel().sendMessage(":no_entry: **There was an error while performing the command.** \nYou have to be an administrator to run this command.");
+                    return;
+                }
+            }
+
             // Check if the command has arguments
             if (command.hasCommandArguments()) {
                 // Check if the arguments match
                 if (command.getCommandArgumentsCount() != commandSplit.size()) {
-                    messageCreateEvent.getChannel().sendMessage(command.getCommandHelpFormat(":no_entry: **There was an error while performing the command.**\n"));
+                    messageCreateEvent.getChannel().sendMessage(command.getIncorrectCommandHelpFormat());
                     return;
                 }
 
@@ -63,6 +80,8 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                 for (CommandArgument commandArgument : command.getCommandArguments()) {
                     String commandSplitIndex = commandSplit.get(index);
 
+                    CommandParameter commandParameter;
+
                     // Check for the command types and parse them
                     switch (commandArgument.getCommandType()) {
                         case String:
@@ -72,8 +91,6 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                             commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), Boolean.valueOf(commandSplitIndex), true));
                             break;
                         case Date:
-                            CommandParameter commandParameter;
-
                             try {
                                 Date formattedDate;
                                 DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
@@ -87,7 +104,14 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                             commandParameters.add(commandParameter);
                             break;
                         case Integer:
-                            commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), Integer.parseInt(commandSplitIndex), true));
+                            try {
+                                Integer parsed = Integer.parseInt(commandSplitIndex);
+                                commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), parsed, true));
+                            }
+                            catch(Exception ex) {
+                                commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), -1, false));
+                            }
+
                             break;
                         default:
                             break;
@@ -116,7 +140,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
     private Command getCommandByName(String commandName) {
         Command foundCommand = null;
 
-        for (Command command : this.allCommands.values()) {
+        for (Command command : this.allCommands) {
             if (command.getCommandName().equals(commandName)) {
                 foundCommand = command;
             }

@@ -12,6 +12,7 @@ public abstract class Command {
     protected String commandName;
     protected String description;
     protected List<CommandArgument> commandArguments = new ArrayList<>();
+    protected Boolean requiresAdmin;
     @Value("${discord.prefix}")
     private String discordCommandPrefix;
 
@@ -51,6 +52,14 @@ public abstract class Command {
         this.commandArguments.add(commandArguments);
     }
 
+    public Boolean getRequiresAdmin() {
+        return requiresAdmin;
+    }
+
+    public void setRequiresAdmin(Boolean requiresAdmin) {
+        this.requiresAdmin = requiresAdmin;
+    }
+
     public String getCommandHelpFormat() {
         StringBuilder mainMessage = new StringBuilder("**Command:** `");
         StringBuilder arguments;
@@ -79,6 +88,10 @@ public abstract class Command {
 
     public String getCommandHelpFormat(String extraMessage) {
         return extraMessage + getCommandHelpFormat();
+    }
+
+    public String getIncorrectCommandHelpFormat() {
+        return ":no_entry: **There was an error while performing the command.**\n" + getCommandHelpFormat();
     }
 
     public abstract void execute(MessageCreateEvent messageCreateEvent);
