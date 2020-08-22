@@ -91,9 +91,10 @@ public abstract class Command {
     }
 
     public String getIncorrectCommandHelpFormat() {
-        return ":no_entry: **There was an error while performing the command.**\n" + getCommandHelpFormat();
+        return "**There was an error while performing the command.**\n\n" + getCommandHelpFormat();
     }
 
     public abstract void execute(MessageCreateEvent messageCreateEvent);
+
     public abstract void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams);
 }

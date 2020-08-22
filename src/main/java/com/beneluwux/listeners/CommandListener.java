@@ -1,5 +1,6 @@
 package com.beneluwux.listeners;
 
+import com.beneluwux.helper.EmbedHelper;
 import com.beneluwux.helper.Log;
 import com.beneluwux.helper.RegisterListener;
 import com.beneluwux.models.command.Command;
@@ -88,7 +89,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
             if (command.getRequiresAdmin() != null && command.getRequiresAdmin()) {
                 // The user is not an administrator
                 if (!messageCreateEvent.getMessageAuthor().isServerAdmin()) {
-                    messageCreateEvent.getChannel().sendMessage(":no_entry: **There was an error while performing the command.** \nYou have to be an administrator to run this command.");
+                    messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("You have to be an administrator to use this command.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
                     return;
                 }
             }
@@ -103,7 +104,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
                 // Check if the arguments match
                 if (command.getCommandArgumentsCount() != commandSplit.size()) {
-                    messageCreateEvent.getChannel().sendMessage(command.getIncorrectCommandHelpFormat());
+                    messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed(command.getIncorrectCommandHelpFormat(), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
                     return;
                 }
 

@@ -1,5 +1,6 @@
 package com.beneluwux.commands;
 
+import com.beneluwux.helper.EmbedHelper;
 import com.beneluwux.models.command.Command;
 import com.beneluwux.models.command.CommandArgument;
 import com.beneluwux.models.command.CommandArgumentType;
@@ -44,6 +45,6 @@ public class BirthdayCommand extends Command {
         // Parse the date to a readable format
         String parsedDate = new SimpleDateFormat("dd MMMMM, yyyy").format(commandParams.get(0).getParamaterValue());
 
-        messageCreateEvent.getChannel().sendMessage("Updated your birthday to " + parsedDate + ".");
+        messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Updated your birthday to " + parsedDate + ".", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }
