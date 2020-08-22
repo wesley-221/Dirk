@@ -1,7 +1,7 @@
 package com.beneluwux.listeners;
 
 import com.beneluwux.helper.Emoji;
-import com.beneluwux.helper.Settings;
+import com.beneluwux.helper.RegisterListener;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
@@ -9,18 +9,22 @@ import org.javacord.api.event.message.reaction.ReactionRemoveEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.javacord.api.listener.message.reaction.ReactionAddListener;
 import org.javacord.api.listener.message.reaction.ReactionRemoveListener;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 
-public class BeneluxListener implements MessageCreateListener, ReactionAddListener, ReactionRemoveListener {
+@Component
+public class BeneluxListener implements MessageCreateListener, ReactionAddListener, ReactionRemoveListener, RegisterListener {
     private static final String WHITELIST_CHANNEL = "server-roles";
 
-    private final Settings settings = new Settings();
+    @Value("${discord.prefix}")
+    private String discordCommandPrefix;
 
     @Override
     public void onMessageCreate(MessageCreateEvent message) {
-        if (message.getMessageContent().startsWith(settings.discordCommandPrefix)) {
-            String command = message.getMessageContent().substring(settings.discordCommandPrefix.length());
+        if (message.getMessageContent().startsWith(discordCommandPrefix)) {
+            String command = message.getMessageContent().substring(discordCommandPrefix.length());
 
             if (message.getMessageAuthor().isBotUser())
                 return;
