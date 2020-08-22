@@ -1,17 +1,19 @@
 package com.beneluwux.models.command;
 
-import com.beneluwux.helper.Settings;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public abstract class Command {
-    private final Settings settings = new Settings();
-
     protected String commandName;
     protected String description;
     protected List<CommandArgument> commandArguments = new ArrayList<>();
+    @Value("${discord.prefix}")
+    private String discordCommandPrefix;
 
     public Command() {
     }
@@ -53,13 +55,13 @@ public abstract class Command {
         StringBuilder mainMessage = new StringBuilder("**Command:** `");
         StringBuilder arguments;
 
-        mainMessage.append(settings.discordCommandPrefix).append(commandName).append("`");
+        mainMessage.append(discordCommandPrefix).append(commandName).append("`");
 
         if (this.description != null && !this.description.isEmpty()) {
             mainMessage.append(": ").append(description);
         }
 
-        mainMessage.append("\n\n").append("**Format:** `").append(settings.discordCommandPrefix).append(commandName);
+        mainMessage.append("\n\n").append("**Format:** `").append(discordCommandPrefix).append(commandName);
 
         if (this.hasCommandArguments()) {
             arguments = new StringBuilder("**Arguments:**\n");

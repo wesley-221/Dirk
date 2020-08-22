@@ -8,6 +8,7 @@ public class Log {
 
     /**
      * Send an info message
+     *
      * @param message the message
      */
     public static void info(String message) {
@@ -16,6 +17,7 @@ public class Log {
 
     /**
      * Send a debug message
+     *
      * @param message the message
      */
     public static void debug(String message) {
@@ -24,6 +26,7 @@ public class Log {
 
     /**
      * Send an error message
+     *
      * @param message the message
      */
     public static void error(String message) {

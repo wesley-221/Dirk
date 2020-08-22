@@ -33,4 +33,4 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/settings.properties
+src/main/resources/application.properties
