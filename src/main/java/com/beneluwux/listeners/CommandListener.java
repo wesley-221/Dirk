@@ -57,7 +57,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
         // Check if the command exists
         if (command != null) {
             // Check if the command requires administrator privileges
-            if(command.getRequiresAdmin()) {
+            if(command.getRequiresAdmin() != null && command.getRequiresAdmin()) {
                 // The user is not an administrator
                 if(!messageCreateEvent.getMessageAuthor().isServerAdmin()) {
                     messageCreateEvent.getChannel().sendMessage(":no_entry: **There was an error while performing the command.** \nYou have to be an administrator to run this command.");
