@@ -4,6 +4,7 @@ import com.beneluwux.helper.Log;
 import com.beneluwux.helper.RegisterListener;
 import com.beneluwux.models.command.Command;
 import com.beneluwux.models.command.CommandArgument;
+import com.beneluwux.models.command.CommandArgumentType;
 import com.beneluwux.models.command.CommandParameter;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class CommandListener implements MessageCreateListener, RegisterListener {
@@ -27,11 +31,35 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
         // Validate commands
         for (Command command : applicationContext.getBeansOfType(Command.class).values()) {
-            if(command.getCommandName() == null) {
+            if (command.getCommandName() == null) {
                 Log.error("Unable to register the command " + command.getClass() + ". You have to set the command name in order for it to be recognized.");
-            }
-            else {
+            } else if (command.getCommandArgumentsCount() > 0) {
+                int commandArgumentIndex = 1;
+                boolean commandArgumentsValid = true;
+
+                // Loop through all command arguments
+                for (CommandArgument commandArgument : command.getCommandArguments()) {
+                    // Check for String arguments
+                    if (commandArgument.getCommandType() == CommandArgumentType.String) {
+                        // String argument was found, check if it is the last argument
+                        if (commandArgumentIndex != command.getCommandArgumentsCount()) {
+                            commandArgumentsValid = false;
+                            break;
+                        }
+                    }
+
+                    commandArgumentIndex++;
+                }
+
+                if (commandArgumentsValid) {
+                    allCommands.add(command);
+                    Log.info("Registered the command " + command.getClass().getName());
+                } else {
+                    Log.error("Unable to register the command " + command.getClass() + ". The String argument can only be last parameter. Use SingleString for a single word.");
+                }
+            } else {
                 allCommands.add(command);
+                Log.info("Registered the command " + command.getClass().getName());
             }
         }
     }
@@ -57,9 +85,9 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
         // Check if the command exists
         if (command != null) {
             // Check if the command requires administrator privileges
-            if(command.getRequiresAdmin() != null && command.getRequiresAdmin()) {
+            if (command.getRequiresAdmin() != null && command.getRequiresAdmin()) {
                 // The user is not an administrator
-                if(!messageCreateEvent.getMessageAuthor().isServerAdmin()) {
+                if (!messageCreateEvent.getMessageAuthor().isServerAdmin()) {
                     messageCreateEvent.getChannel().sendMessage(":no_entry: **There was an error while performing the command.** \nYou have to be an administrator to run this command.");
                     return;
                 }
@@ -67,6 +95,12 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
             // Check if the command has arguments
             if (command.hasCommandArguments()) {
+                // Check if last argument is a String
+                if (command.getCommandArguments().get(command.getCommandArgumentsCount() - 1).getCommandType() == CommandArgumentType.String) {
+                    String commandArgumentsString = String.join(" ", commandSplit);
+                    commandSplit = new ArrayList<>(Arrays.asList(commandArgumentsString.split(" ", command.getCommandArgumentsCount())));
+                }
+
                 // Check if the arguments match
                 if (command.getCommandArgumentsCount() != commandSplit.size()) {
                     messageCreateEvent.getChannel().sendMessage(command.getIncorrectCommandHelpFormat());
@@ -84,6 +118,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
                     // Check for the command types and parse them
                     switch (commandArgument.getCommandType()) {
+                        case SingleString:
                         case String:
                             commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), commandSplitIndex, true));
                             break;
@@ -107,8 +142,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                             try {
                                 Integer parsed = Integer.parseInt(commandSplitIndex);
                                 commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), parsed, true));
-                            }
-                            catch(Exception ex) {
+                            } catch (Exception ex) {
                                 commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), -1, false));
                             }
 
