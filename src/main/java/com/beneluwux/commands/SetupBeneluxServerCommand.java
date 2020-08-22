@@ -20,13 +20,11 @@ public class SetupBeneluxServerCommand extends Command {
     public SetupBeneluxServerCommand(@Value("${discord.prefix}") String discordCommandPrefix) {
         this.commandName = "setupbeneluxserver";
         this.discordCommandPrefix = discordCommandPrefix;
+        this.requiresAdmin = true;
     }
 
     @Override
     public void execute(MessageCreateEvent message) {
-        if (!message.getMessageAuthor().isServerAdmin())
-            return;
-
         String stringBuilder = "Click on any of the emoji's on this message in order to get the appropriate role. \n" +
                 ":flag_nl: : My nationality is **Dutch**! \n" +
                 ":flag_be: : My nationality is **Belgian**! \n" +
