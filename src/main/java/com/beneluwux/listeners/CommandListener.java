@@ -85,6 +85,14 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
         // Check if the command exists
         if (command != null) {
+            // Check if the command requires owner privileges
+            if (command.getRequiresBotOwner() != null && command.getRequiresBotOwner()) {
+                if (!messageCreateEvent.getMessageAuthor().isBotOwner()) {
+                    messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("You have to be the owner of the bot to use this command.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    return;
+                }
+            }
+
             // Check if the command requires administrator privileges
             if (command.getRequiresAdmin() != null && command.getRequiresAdmin()) {
                 // The user is not an administrator
@@ -163,6 +171,8 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
             }
 
             Log.info(String.format("%s ran the command: %s", messageCreateEvent.getMessageAuthor().getDiscriminatedName(), commandName));
+        } else {
+
         }
     }
 

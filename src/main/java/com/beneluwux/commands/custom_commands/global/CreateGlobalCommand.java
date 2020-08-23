@@ -23,7 +23,7 @@ public class CreateGlobalCommand extends Command {
     @Autowired
     public CreateGlobalCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository) {
         this.commandName = "createglobalcommand";
-        this.requiresAdmin = true;
+        this.requiresBotOwner = true;
 
         this.commandArguments.add(new CommandArgument("command name", "The name of the command to create", CommandArgumentType.SingleString));
         this.commandArguments.add(new CommandArgument("command output", "The output of the command", CommandArgumentType.String));

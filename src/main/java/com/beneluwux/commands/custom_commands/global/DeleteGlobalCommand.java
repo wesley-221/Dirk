@@ -20,7 +20,7 @@ public class DeleteGlobalCommand extends Command {
     @Autowired
     public DeleteGlobalCommand(CustomCommandRepository customCommandRepository) {
         this.commandName = "deleteglobalcommand";
-        this.requiresAdmin = true;
+        this.requiresBotOwner = true;
 
         this.commandArguments.add(new CommandArgument("command name", "The name of the command to delete", CommandArgumentType.SingleString));
         this.customCommandRepository = customCommandRepository;

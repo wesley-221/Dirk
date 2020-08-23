@@ -22,7 +22,7 @@ public class EditGlobalCommand extends Command {
     @Autowired
     public EditGlobalCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository) {
         this.commandName = "editglobalcommand";
-        this.requiresAdmin = true;
+        this.requiresBotOwner = true;
 
         this.commandArguments.add(new CommandArgument("command name", "The name of the command to edit", CommandArgumentType.SingleString));
         this.commandArguments.add(new CommandArgument("command output", "The output of the command", CommandArgumentType.String));

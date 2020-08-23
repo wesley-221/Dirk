@@ -13,6 +13,7 @@ public abstract class Command {
     protected String description;
     protected List<CommandArgument> commandArguments = new ArrayList<>();
     protected Boolean requiresAdmin;
+    protected Boolean requiresBotOwner;
     @Value("${discord.prefix}")
     private String discordCommandPrefix;
 
@@ -34,6 +35,14 @@ public abstract class Command {
 
     public void setCommandName(String commandName) {
         this.commandName = commandName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<CommandArgument> getCommandArguments() {
@@ -58,6 +67,14 @@ public abstract class Command {
 
     public void setRequiresAdmin(Boolean requiresAdmin) {
         this.requiresAdmin = requiresAdmin;
+    }
+
+    public Boolean getRequiresBotOwner() {
+        return requiresBotOwner;
+    }
+
+    public void setRequiresBotOwner(Boolean requiresBotOwner) {
+        this.requiresBotOwner = requiresBotOwner;
     }
 
     public String getCommandHelpFormat() {
