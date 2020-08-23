@@ -1,6 +1,7 @@
 package com.beneluwux.commands.custom_commands.guild;
 
 import com.beneluwux.helper.EmbedHelper;
+import com.beneluwux.meta.CustomCommandComponent;
 import com.beneluwux.models.command.Command;
 import com.beneluwux.models.command.CommandArgument;
 import com.beneluwux.models.command.CommandArgumentType;
@@ -16,14 +17,16 @@ import java.util.List;
 @Component
 public class DeleteGuildCommand extends Command {
     private final CustomCommandRepository customCommandRepository;
+    private final CustomCommandComponent customCommandComponent;
 
     @Autowired
-    public DeleteGuildCommand(CustomCommandRepository customCommandRepository) {
+    public DeleteGuildCommand(CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "deleteguildcommand";
         this.requiresAdmin = true;
 
         this.commandArguments.add(new CommandArgument("command name", "The name of the command to delete", CommandArgumentType.SingleString));
         this.customCommandRepository = customCommandRepository;
+        this.customCommandComponent = customCommandComponent;
     }
 
     @Override
@@ -40,6 +43,8 @@ public class DeleteGuildCommand extends Command {
             messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The guild command `" + commandKey.getParamaterValue() + "` doesn't exist.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } else {
             customCommandRepository.delete(customCommand);
+            customCommandComponent.refreshCustomCommandsFromJPA();
+
             messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("The guild command `" + commandKey.getParamaterValue() + "` has been deleted.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         }
     }

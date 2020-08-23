@@ -1,6 +1,7 @@
 package com.beneluwux.commands.custom_commands.global;
 
 import com.beneluwux.helper.EmbedHelper;
+import com.beneluwux.meta.CustomCommandComponent;
 import com.beneluwux.models.command.Command;
 import com.beneluwux.models.command.CommandArgument;
 import com.beneluwux.models.command.CommandArgumentType;
@@ -19,9 +20,10 @@ import java.util.Map;
 public class CreateGlobalCommand extends Command {
     private final ApplicationContext applicationContext;
     private final CustomCommandRepository customCommandRepository;
+    private final CustomCommandComponent customCommandComponent;
 
     @Autowired
-    public CreateGlobalCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository) {
+    public CreateGlobalCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "createglobalcommand";
         this.requiresBotOwner = true;
 
@@ -30,6 +32,7 @@ public class CreateGlobalCommand extends Command {
 
         this.applicationContext = applicationContext;
         this.customCommandRepository = customCommandRepository;
+        this.customCommandComponent = customCommandComponent;
     }
 
     @Override
@@ -65,6 +68,7 @@ public class CreateGlobalCommand extends Command {
 
         CustomCommand customCommand = new CustomCommand(0L, messageCreateEvent.getMessageAuthor().getId(), (String) commandKey.getParamaterValue(), (String) commandMessage.getParamaterValue());
         customCommandRepository.save(customCommand);
+        customCommandComponent.refreshCustomCommandsFromJPA();
 
         messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Created the global command `" + commandKey.getParamaterValue() + "`: `" + commandMessage.getParamaterValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }

@@ -3,10 +3,12 @@ package com.beneluwux.listeners;
 import com.beneluwux.helper.EmbedHelper;
 import com.beneluwux.helper.Log;
 import com.beneluwux.helper.RegisterListener;
+import com.beneluwux.meta.CustomCommandComponent;
 import com.beneluwux.models.command.Command;
 import com.beneluwux.models.command.CommandArgument;
 import com.beneluwux.models.command.CommandArgumentType;
 import com.beneluwux.models.command.CommandParameter;
+import com.beneluwux.models.entities.CustomCommand;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +26,15 @@ import java.util.List;
 @Component
 public class CommandListener implements MessageCreateListener, RegisterListener {
     private final String discordCommandPrefix;
+    private final CustomCommandComponent customCommandComponent;
     private final List<Command> allCommands = new ArrayList<>();
+    private List<CustomCommand> allCustomCommands;
 
     @Autowired
-    public CommandListener(ApplicationContext applicationContext, @Value("${discord.prefix}") String discordCommandPrefix) {
+    public CommandListener(ApplicationContext applicationContext, @Value("${discord.prefix}") String discordCommandPrefix, CustomCommandComponent customCommandComponent) {
         this.discordCommandPrefix = discordCommandPrefix;
+        this.customCommandComponent = customCommandComponent;
+        this.allCustomCommands = customCommandComponent.getAllCustomCommands();
 
         // Validate commands
         for (Command command : applicationContext.getBeansOfType(Command.class).values()) {
@@ -63,6 +69,11 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                 Log.info("Registered the command " + command.getClass().getName());
             }
         }
+
+        // Log the custom commands
+        for (CustomCommand customCommand : this.allCustomCommands) {
+            Log.info("Registered the custom " + (customCommand.getServerSnowflake() == 0L ? "global" : "guild") + " command " + customCommand.getName());
+        }
     }
 
     @Override
@@ -74,6 +85,8 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
         // Check if the message starts with the command prefix
         if (!messageCreateEvent.getMessage().getContent().startsWith(discordCommandPrefix))
             return;
+
+        this.allCustomCommands = customCommandComponent.getAllCustomCommands();
 
         // Remove the discord prefix
         List<String> commandSplit = new ArrayList<>(Arrays.asList(messageCreateEvent.getMessage().getContent().substring(discordCommandPrefix.length()).split(" ")));
@@ -172,7 +185,18 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
             Log.info(String.format("%s ran the command: %s", messageCreateEvent.getMessageAuthor().getDiscriminatedName(), commandName));
         } else {
+            CustomCommand customCommand = this.getCustomCommandByName(commandName);
 
+            if (customCommand != null) {
+                // Global command, run regardless of server
+                if (customCommand.getServerSnowflake() == 0L) {
+                    messageCreateEvent.getChannel().sendMessage(customCommand.getMessage());
+                } else {
+                    if (messageCreateEvent.isServerMessage() && messageCreateEvent.getServer().get().getId() == customCommand.getServerSnowflake()) {
+                        messageCreateEvent.getChannel().sendMessage(customCommand.getMessage());
+                    }
+                }
+            }
         }
     }
 
@@ -188,6 +212,24 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
         for (Command command : this.allCommands) {
             if (command.getCommandName().equals(commandName)) {
                 foundCommand = command;
+            }
+        }
+
+        return foundCommand;
+    }
+
+    /**
+     * Get a custom command by the given name and server snowflake
+     *
+     * @param commandName the name of the custom command
+     * @return the custom command
+     */
+    private CustomCommand getCustomCommandByName(String commandName) {
+        CustomCommand foundCommand = null;
+
+        for (CustomCommand customCommand : this.allCustomCommands) {
+            if (customCommand.getName().equals(commandName)) {
+                foundCommand = customCommand;
             }
         }
 

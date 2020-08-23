@@ -2,7 +2,6 @@ package com.beneluwux;
 
 import com.beneluwux.helper.Log;
 import com.beneluwux.helper.RegisterListener;
-import com.beneluwux.repositories.BirthdayRepository;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.listener.GloballyAttachableListener;
@@ -17,16 +16,13 @@ import java.util.Map;
 @Component
 public class DiscordConfiguration {
     private final ApplicationContext applicationContext;
-    @Value("${discord.api.key}")
-    private String discordApiKey;
+    private final String discordApiKey;
     private DiscordApi discordApi;
 
     @Autowired
-    BirthdayRepository birthdayRepository;
-
-    @Autowired
-    public DiscordConfiguration(ApplicationContext applicationContext) {
+    public DiscordConfiguration(ApplicationContext applicationContext, @Value("${discord.api.key}") String discordApiKey) {
         this.applicationContext = applicationContext;
+        this.discordApiKey = discordApiKey;
     }
 
     @Bean

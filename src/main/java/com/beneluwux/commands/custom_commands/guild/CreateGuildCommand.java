@@ -1,6 +1,7 @@
 package com.beneluwux.commands.custom_commands.guild;
 
 import com.beneluwux.helper.EmbedHelper;
+import com.beneluwux.meta.CustomCommandComponent;
 import com.beneluwux.models.command.Command;
 import com.beneluwux.models.command.CommandArgument;
 import com.beneluwux.models.command.CommandArgumentType;
@@ -19,9 +20,10 @@ import java.util.Map;
 public class CreateGuildCommand extends Command {
     private final ApplicationContext applicationContext;
     private final CustomCommandRepository customCommandRepository;
+    private final CustomCommandComponent customCommandComponent;
 
     @Autowired
-    public CreateGuildCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository) {
+    public CreateGuildCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "createguildcommand";
         this.requiresAdmin = true;
 
@@ -30,6 +32,7 @@ public class CreateGuildCommand extends Command {
 
         this.applicationContext = applicationContext;
         this.customCommandRepository = customCommandRepository;
+        this.customCommandComponent = customCommandComponent;
     }
 
     @Override
@@ -72,6 +75,7 @@ public class CreateGuildCommand extends Command {
 
         CustomCommand customCommand = new CustomCommand(messageCreateEvent.getServer().get().getId(), messageCreateEvent.getMessageAuthor().getId(), (String) commandKey.getParamaterValue(), (String) commandMessage.getParamaterValue());
         customCommandRepository.save(customCommand);
+        customCommandComponent.refreshCustomCommandsFromJPA();
 
         messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Created the guild command `" + commandKey.getParamaterValue() + "`: `" + commandMessage.getParamaterValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
