@@ -4,11 +4,17 @@ public class CommandArgument {
     private String key;
     private String prompt;
     private CommandArgumentType type;
+    private Boolean optional;
 
     public CommandArgument(String key, String prompt, CommandArgumentType type) {
         this.key = key;
         this.prompt = prompt;
         this.type = type;
+    }
+
+    public CommandArgument(String key, String prompt, CommandArgumentType type, Boolean optional) {
+        this(key, prompt, type);
+        this.optional = optional;
     }
 
     public String getKey() {
@@ -33,5 +39,13 @@ public class CommandArgument {
 
     public void setType(CommandArgumentType type) {
         this.type = type;
+    }
+
+    public Boolean isOptional() {
+        return optional;
+    }
+
+    public void setOptional(Boolean optional) {
+        this.optional = optional;
     }
 }
