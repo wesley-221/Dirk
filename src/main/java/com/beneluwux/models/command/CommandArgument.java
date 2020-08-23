@@ -1,37 +1,37 @@
 package com.beneluwux.models.command;
 
 public class CommandArgument {
-    private String commandKey;
-    private String commandPrompt;
-    private CommandArgumentType commandType;
+    private String key;
+    private String prompt;
+    private CommandArgumentType type;
 
-    public CommandArgument(String commandKey, String commandPrompt, CommandArgumentType commandType) {
-        this.commandKey = commandKey;
-        this.commandPrompt = commandPrompt;
-        this.commandType = commandType;
+    public CommandArgument(String key, String prompt, CommandArgumentType type) {
+        this.key = key;
+        this.prompt = prompt;
+        this.type = type;
     }
 
-    public String getCommandKey() {
-        return commandKey;
+    public String getKey() {
+        return key;
     }
 
-    public void setCommandKey(String commandKey) {
-        this.commandKey = commandKey;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public String getCommandPrompt() {
-        return commandPrompt;
+    public String getPrompt() {
+        return prompt;
     }
 
-    public void setCommandPrompt(String commandPrompt) {
-        this.commandPrompt = commandPrompt;
+    public void setPrompt(String prompt) {
+        this.prompt = prompt;
     }
 
-    public CommandArgumentType getCommandType() {
-        return commandType;
+    public CommandArgumentType getType() {
+        return type;
     }
 
-    public void setCommandType(CommandArgumentType commandType) {
-        this.commandType = commandType;
+    public void setType(CommandArgumentType type) {
+        this.type = type;
     }
 }

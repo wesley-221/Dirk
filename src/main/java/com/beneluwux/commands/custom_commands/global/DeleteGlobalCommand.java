@@ -37,15 +37,15 @@ public class DeleteGlobalCommand extends Command {
     @Override
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
         CommandParameter commandKey = commandParams.get(0);
-        CustomCommand customCommand = customCommandRepository.findByNameAndServerSnowflake((String) commandKey.getParamaterValue(), 0L);
+        CustomCommand customCommand = customCommandRepository.findByNameAndServerSnowflake((String) commandKey.getValue(), 0L);
 
         if (customCommand == null) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The global command `" + commandKey.getParamaterValue() + "` doesn't exist.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The global command `" + commandKey.getValue() + "` doesn't exist.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } else {
             customCommandRepository.delete(customCommand);
             customCommandComponent.refreshCustomCommandsFromJPA();
 
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("The global command `" + commandKey.getParamaterValue() + "` has been deleted.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("The global command `" + commandKey.getValue() + "` has been deleted.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         }
     }
 }

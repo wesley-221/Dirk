@@ -1,47 +1,47 @@
 package com.beneluwux.models.command;
 
 public class CommandParameter {
-    private String parameterKey;
-    private Object paramaterValue;
-    private Boolean parameterParsedCorrectly;
+    private String key;
+    private Object value;
+    private Boolean parsedCorrectly;
 
-    public CommandParameter(String parameterKey, Object paramaterValue, Boolean parameterParsedCorrectly) {
-        this.parameterKey = parameterKey;
-        this.paramaterValue = paramaterValue;
-        this.parameterParsedCorrectly = parameterParsedCorrectly;
+    public CommandParameter(String key, Object value, Boolean parsedCorrectly) {
+        this.key = key;
+        this.value = value;
+        this.parsedCorrectly = parsedCorrectly;
     }
 
-    public String getParameterKey() {
-        return parameterKey;
+    public String getKey() {
+        return key;
     }
 
-    public void setParameterKey(String parameterKey) {
-        this.parameterKey = parameterKey;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public Object getParamaterValue() {
-        return paramaterValue;
+    public Object getValue() {
+        return value;
     }
 
-    public void setParamaterValue(Object paramaterValue) {
-        this.paramaterValue = paramaterValue;
+    public void setValue(Object value) {
+        this.value = value;
     }
 
-    public Boolean getParameterParsedCorrectly() {
-        return parameterParsedCorrectly;
+    public Boolean isParsedCorrectly() {
+        return parsedCorrectly;
     }
 
-    public void setParameterParsedCorrectly(Boolean parameterParsedCorrectly) {
-        this.parameterParsedCorrectly = parameterParsedCorrectly;
+    public void setParsedCorrectly(Boolean parsedCorrectly) {
+        this.parsedCorrectly = parsedCorrectly;
     }
 
     @Override
     public String toString() {
         return "CommandParameter{" +
-                "parameterKey='" + parameterKey + '\'' +
-                ", paramaterValue=" + paramaterValue +
-                ", parameterParsedCorrectly=" + parameterParsedCorrectly +
-                ", parameterType=" + paramaterValue.getClass() +
+                "parameterKey='" + key + '\'' +
+                ", paramaterValue=" + value +
+                ", parameterParsedCorrectly=" + parsedCorrectly +
+                ", parameterType=" + value.getClass() +
                 '}';
     }
 }

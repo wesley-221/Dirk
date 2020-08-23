@@ -40,16 +40,16 @@ public class EditGuildCommand extends Command {
         CommandParameter commandKey = commandParams.get(0);
         CommandParameter commandMessage = commandParams.get(1);
 
-        CustomCommand customCommand = customCommandRepository.findByNameAndServerSnowflake((String) commandKey.getParamaterValue(), messageCreateEvent.getServer().get().getId());
+        CustomCommand customCommand = customCommandRepository.findByNameAndServerSnowflake((String) commandKey.getValue(), messageCreateEvent.getServer().get().getId());
 
         if (customCommand == null) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The guild command `" + commandKey.getParamaterValue() + "` doesn't exist.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The guild command `" + commandKey.getValue() + "` doesn't exist.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } else {
-            customCommand.setMessage((String) commandMessage.getParamaterValue());
+            customCommand.setMessage((String) commandMessage.getValue());
             customCommandRepository.save(customCommand);
             customCommandComponent.refreshCustomCommandsFromJPA();
 
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Edited the guild command `" + commandKey.getParamaterValue() + "`: `" + commandMessage.getParamaterValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Edited the guild command `" + commandKey.getValue() + "`: `" + commandMessage.getValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         }
     }
 }

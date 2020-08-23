@@ -38,12 +38,12 @@ public class BirthdayCommand extends Command {
 
         Birthday birthday = new Birthday();
         birthday.setBirthdayId(birthdayId);
-        birthday.setBirthday((Date) commandParams.get(0).getParamaterValue());
+        birthday.setBirthday((Date) commandParams.get(0).getValue());
 
         birthdayRepository.save(birthday);
 
         // Parse the date to a readable format
-        String parsedDate = new SimpleDateFormat("dd MMMMM, yyyy").format(commandParams.get(0).getParamaterValue());
+        String parsedDate = new SimpleDateFormat("dd MMMMM, yyyy").format(commandParams.get(0).getValue());
 
         messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Updated your birthday to " + parsedDate + ".", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }

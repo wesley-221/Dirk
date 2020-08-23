@@ -26,12 +26,12 @@ public class ClearCommand extends Command {
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
         CommandParameter commandParameter = commandParams.get(0);
 
-        if (!commandParameter.getParameterParsedCorrectly()) {
+        if (!commandParameter.isParsedCorrectly()) {
             messageCreateEvent.getChannel().sendMessage(getIncorrectCommandHelpFormat());
             return;
         }
 
-        int messagesToDelete = (Integer) commandParameter.getParamaterValue() > 0 ? (Integer) commandParameter.getParamaterValue() : 5;
+        int messagesToDelete = (Integer) commandParameter.getValue() > 0 ? (Integer) commandParameter.getValue() : 5;
 
         messageCreateEvent.getServerTextChannel().ifPresent(serverTextChannel -> serverTextChannel.getMessages(messagesToDelete).whenCompleteAsync((messages, throwable) -> messages.deleteAll()));
     }

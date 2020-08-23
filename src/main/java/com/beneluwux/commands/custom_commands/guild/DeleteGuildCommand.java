@@ -37,15 +37,15 @@ public class DeleteGuildCommand extends Command {
     @Override
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
         CommandParameter commandKey = commandParams.get(0);
-        CustomCommand customCommand = customCommandRepository.findByNameAndServerSnowflake((String) commandKey.getParamaterValue(), messageCreateEvent.getServer().get().getId());
+        CustomCommand customCommand = customCommandRepository.findByNameAndServerSnowflake((String) commandKey.getValue(), messageCreateEvent.getServer().get().getId());
 
         if (customCommand == null) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The guild command `" + commandKey.getParamaterValue() + "` doesn't exist.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The guild command `" + commandKey.getValue() + "` doesn't exist.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } else {
             customCommandRepository.delete(customCommand);
             customCommandComponent.refreshCustomCommandsFromJPA();
 
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("The guild command `" + commandKey.getParamaterValue() + "` has been deleted.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("The guild command `" + commandKey.getValue() + "` has been deleted.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         }
     }
 }

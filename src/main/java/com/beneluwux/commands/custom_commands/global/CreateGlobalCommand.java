@@ -49,7 +49,7 @@ public class CreateGlobalCommand extends Command {
 
         // Loop through static commands
         for (Command command : staticCommands.values()) {
-            if (command.getCommandName().equals(commandKey.getParamaterValue())) {
+            if (command.getCommandName().equals(commandKey.getValue())) {
                 commandWasFound = true;
                 break;
             }
@@ -57,19 +57,19 @@ public class CreateGlobalCommand extends Command {
 
         // Check if the custom command exists
         if (!commandWasFound) {
-            commandWasFound = customCommandRepository.existsByNameAndServerSnowflake((String) commandKey.getParamaterValue(), 0L);
+            commandWasFound = customCommandRepository.existsByNameAndServerSnowflake((String) commandKey.getValue(), 0L);
         }
 
         // There was a command found
         if (commandWasFound) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("There is already a global command with the name `" + commandKey.getParamaterValue() + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("There is already a global command with the name `" + commandKey.getValue() + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
-        CustomCommand customCommand = new CustomCommand(0L, messageCreateEvent.getMessageAuthor().getId(), (String) commandKey.getParamaterValue(), (String) commandMessage.getParamaterValue());
+        CustomCommand customCommand = new CustomCommand(0L, messageCreateEvent.getMessageAuthor().getId(), (String) commandKey.getValue(), (String) commandMessage.getValue());
         customCommandRepository.save(customCommand);
         customCommandComponent.refreshCustomCommandsFromJPA();
 
-        messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Created the global command `" + commandKey.getParamaterValue() + "`: `" + commandMessage.getParamaterValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+        messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Created the global command `" + commandKey.getValue() + "`: `" + commandMessage.getValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }

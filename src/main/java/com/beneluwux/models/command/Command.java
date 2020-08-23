@@ -93,8 +93,8 @@ public abstract class Command {
             arguments = new StringBuilder("**Arguments:**\n");
 
             this.commandArguments.forEach(commandArgument -> {
-                mainMessage.append(" <").append(commandArgument.getCommandKey()).append(">");
-                arguments.append("`").append(commandArgument.getCommandKey()).append("`: ").append(commandArgument.getCommandPrompt()).append("\n");
+                mainMessage.append(" <").append(commandArgument.getKey()).append(">");
+                arguments.append("`").append(commandArgument.getKey()).append("`: ").append(commandArgument.getPrompt()).append("\n");
             });
 
             mainMessage.append("`\n").append(arguments);

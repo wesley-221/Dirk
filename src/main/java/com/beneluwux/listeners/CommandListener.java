@@ -47,7 +47,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                 // Loop through all command arguments
                 for (CommandArgument commandArgument : command.getCommandArguments()) {
                     // Check for String arguments
-                    if (commandArgument.getCommandType() == CommandArgumentType.String) {
+                    if (commandArgument.getType() == CommandArgumentType.String) {
                         // String argument was found, check if it is the last argument
                         if (commandArgumentIndex != command.getCommandArgumentsCount()) {
                             commandArgumentsValid = false;
@@ -118,7 +118,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
             // Check if the command has arguments
             if (command.hasCommandArguments()) {
                 // Check if last argument is a String
-                if (command.getCommandArguments().get(command.getCommandArgumentsCount() - 1).getCommandType() == CommandArgumentType.String) {
+                if (command.getCommandArguments().get(command.getCommandArgumentsCount() - 1).getType() == CommandArgumentType.String) {
                     String commandArgumentsString = String.join(" ", commandSplit);
                     commandSplit = new ArrayList<>(Arrays.asList(commandArgumentsString.split(" ", command.getCommandArgumentsCount())));
                 }
@@ -139,13 +139,13 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                     CommandParameter commandParameter;
 
                     // Check for the command types and parse them
-                    switch (commandArgument.getCommandType()) {
+                    switch (commandArgument.getType()) {
                         case SingleString:
                         case String:
-                            commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), commandSplitIndex, true));
+                            commandParameters.add(new CommandParameter(commandArgument.getKey(), commandSplitIndex, true));
                             break;
                         case Boolean:
-                            commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), Boolean.valueOf(commandSplitIndex), true));
+                            commandParameters.add(new CommandParameter(commandArgument.getKey(), Boolean.valueOf(commandSplitIndex), true));
                             break;
                         case Date:
                             try {
@@ -153,9 +153,9 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                                 DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
                                 formattedDate = format.parse(commandSplitIndex);
 
-                                commandParameter = new CommandParameter(commandArgument.getCommandKey(), formattedDate, true);
+                                commandParameter = new CommandParameter(commandArgument.getKey(), formattedDate, true);
                             } catch (Exception ex) {
-                                commandParameter = new CommandParameter(commandArgument.getCommandKey(), new Date(), false);
+                                commandParameter = new CommandParameter(commandArgument.getKey(), new Date(), false);
                             }
 
                             commandParameters.add(commandParameter);
@@ -163,9 +163,9 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                         case Integer:
                             try {
                                 Integer parsed = Integer.parseInt(commandSplitIndex);
-                                commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), parsed, true));
+                                commandParameters.add(new CommandParameter(commandArgument.getKey(), parsed, true));
                             } catch (Exception ex) {
-                                commandParameters.add(new CommandParameter(commandArgument.getCommandKey(), -1, false));
+                                commandParameters.add(new CommandParameter(commandArgument.getKey(), -1, false));
                             }
 
                             break;

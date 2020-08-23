@@ -49,7 +49,7 @@ public class CreateGuildCommand extends Command {
 
         // Loop through static commands
         for (Command command : staticCommands.values()) {
-            if (command.getCommandName().equals(commandKey.getParamaterValue())) {
+            if (command.getCommandName().equals(commandKey.getValue())) {
                 commandWasFound = true;
                 break;
             }
@@ -57,26 +57,26 @@ public class CreateGuildCommand extends Command {
 
         // There was a command found
         if (commandWasFound) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The guild command `" + commandKey.getParamaterValue() + "` already exists.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("The guild command `" + commandKey.getValue() + "` already exists.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
         // Check if a global custom command exists
-        if (customCommandRepository.existsByNameAndServerSnowflake((String) commandKey.getParamaterValue(), 0L)) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("There is already a global command with the name `" + commandKey.getParamaterValue() + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+        if (customCommandRepository.existsByNameAndServerSnowflake((String) commandKey.getValue(), 0L)) {
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("There is already a global command with the name `" + commandKey.getValue() + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
         // Check if a guild custom command exists
-        if (customCommandRepository.existsByNameAndServerSnowflake((String) commandKey.getParamaterValue(), messageCreateEvent.getServer().get().getId())) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("There is already a guild command with the name `" + commandKey.getParamaterValue() + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+        if (customCommandRepository.existsByNameAndServerSnowflake((String) commandKey.getValue(), messageCreateEvent.getServer().get().getId())) {
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed("There is already a guild command with the name `" + commandKey.getValue() + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
-        CustomCommand customCommand = new CustomCommand(messageCreateEvent.getServer().get().getId(), messageCreateEvent.getMessageAuthor().getId(), (String) commandKey.getParamaterValue(), (String) commandMessage.getParamaterValue());
+        CustomCommand customCommand = new CustomCommand(messageCreateEvent.getServer().get().getId(), messageCreateEvent.getMessageAuthor().getId(), (String) commandKey.getValue(), (String) commandMessage.getValue());
         customCommandRepository.save(customCommand);
         customCommandComponent.refreshCustomCommandsFromJPA();
 
-        messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Created the guild command `" + commandKey.getParamaterValue() + "`: `" + commandMessage.getParamaterValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+        messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("Created the guild command `" + commandKey.getValue() + "`: `" + commandMessage.getValue() + "`", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }
