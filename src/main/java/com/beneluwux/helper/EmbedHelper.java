@@ -29,4 +29,8 @@ public class EmbedHelper {
 
         return new EmbedBuilder().setTimestampToNow().setFooter("User left").setColor(Color.ORANGE).setAuthor(parsedMessage, "", joinUser.getAvatar().getUrl().toString());
     }
+
+    public static EmbedBuilder reminderEmbed(String message) {
+        return new EmbedBuilder().setTimestampToNow().setColor(Color.RED).setAuthor("Reminder").setDescription(message);
+    }
 }
