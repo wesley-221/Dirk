@@ -152,10 +152,22 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                     commandSplit = new ArrayList<>(Arrays.asList(commandArgumentsString.split(" ", command.getCommandArgumentsCount())));
                 }
 
+                long optionalParameters = command.getCommandArguments().stream().filter(CommandArgument::isOptional).count();
+
                 // Check if the arguments match
                 if (command.getCommandArgumentsCount() != commandSplit.size()) {
-                    messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed(command.getIncorrectCommandHelpFormat(), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
-                    return;
+                    // There are optional parameters
+                    if (optionalParameters > 0) {
+                        if (command.getCommandArgumentsCount() != (commandSplit.size() + optionalParameters)) {
+                            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed(command.getIncorrectCommandHelpFormat(), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                            return;
+                        }
+                    }
+                    // There are no optional parameters
+                    else {
+                        messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed(command.getIncorrectCommandHelpFormat(), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                        return;
+                    }
                 }
 
                 List<CommandParameter> commandParameters = new ArrayList<>();
@@ -163,43 +175,50 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
                 // Loop through all parameters
                 for (CommandArgument commandArgument : command.getCommandArguments()) {
-                    String commandSplitIndex = commandSplit.get(index);
+                    try {
+                        String commandSplitIndex = commandSplit.get(index);
 
-                    CommandParameter commandParameter;
+                        CommandParameter commandParameter;
 
-                    // Check for the command types and parse them
-                    switch (commandArgument.getType()) {
-                        case SingleString:
-                        case String:
-                            commandParameters.add(new CommandParameter(commandArgument.getKey(), commandSplitIndex, true));
-                            break;
-                        case Boolean:
-                            commandParameters.add(new CommandParameter(commandArgument.getKey(), Boolean.valueOf(commandSplitIndex), true));
-                            break;
-                        case Date:
-                            try {
-                                Date formattedDate;
-                                DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                                formattedDate = format.parse(commandSplitIndex);
+                        // Check for the command types and parse them
+                        switch (commandArgument.getType()) {
+                            case SingleString:
+                            case String:
+                                commandParameters.add(new CommandParameter(commandArgument.getKey(), commandSplitIndex, true));
+                                break;
+                            case Boolean:
+                                commandParameters.add(new CommandParameter(commandArgument.getKey(), Boolean.valueOf(commandSplitIndex), true));
+                                break;
+                            case Date:
+                                try {
+                                    Date formattedDate;
+                                    DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                                    formattedDate = format.parse(commandSplitIndex);
 
-                                commandParameter = new CommandParameter(commandArgument.getKey(), formattedDate, true);
-                            } catch (Exception ex) {
-                                commandParameter = new CommandParameter(commandArgument.getKey(), new Date(), false);
-                            }
+                                    commandParameter = new CommandParameter(commandArgument.getKey(), formattedDate, true);
+                                } catch (Exception ex) {
+                                    commandParameter = new CommandParameter(commandArgument.getKey(), new Date(), false);
+                                }
 
-                            commandParameters.add(commandParameter);
-                            break;
-                        case Integer:
-                            try {
-                                Integer parsed = Integer.parseInt(commandSplitIndex);
-                                commandParameters.add(new CommandParameter(commandArgument.getKey(), parsed, true));
-                            } catch (Exception ex) {
-                                commandParameters.add(new CommandParameter(commandArgument.getKey(), -1, false));
-                            }
+                                commandParameters.add(commandParameter);
+                                break;
+                            case Integer:
+                                try {
+                                    Integer parsed = Integer.parseInt(commandSplitIndex);
+                                    commandParameters.add(new CommandParameter(commandArgument.getKey(), parsed, true));
+                                } catch (Exception ex) {
+                                    commandParameters.add(new CommandParameter(commandArgument.getKey(), -1, false));
+                                }
 
-                            break;
-                        default:
-                            break;
+                                break;
+                            default:
+                                break;
+                        }
+                    } catch (IndexOutOfBoundsException exception) {
+                        CommandParameter commandParameter = new CommandParameter(commandArgument.getKey(), 0, true);
+                        commandParameter.setWasOptional(true);
+
+                        commandParameters.add(commandParameter);
                     }
 
                     index++;
