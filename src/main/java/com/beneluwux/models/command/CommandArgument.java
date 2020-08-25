@@ -34,6 +34,7 @@ public class CommandArgument {
         this.key = key;
         this.prompt = prompt;
         this.type = type;
+        this.optional = false;
     }
 
     public CommandArgument(String key, String prompt, CommandArgumentType type, Boolean optional) {

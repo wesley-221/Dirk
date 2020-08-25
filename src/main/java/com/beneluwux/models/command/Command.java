@@ -114,20 +114,25 @@ public abstract class Command {
         StringBuilder mainMessage = new StringBuilder("**Command:** `");
         StringBuilder arguments;
 
-        mainMessage.append(discordCommandPrefix).append(commandName).append("`");
-
-        if (this.description != null && !this.description.isEmpty()) {
-            mainMessage.append(": ").append(description);
-        }
-
-        mainMessage.append("\n\n").append("**Format:** `").append(discordCommandPrefix).append(commandName);
+        mainMessage.append(discordCommandPrefix).append(commandName).append("`\n")
+                .append(description).append("\n\n")
+                .append("**Format:** `").append(discordCommandPrefix).append(commandName);
 
         if (this.hasCommandArguments()) {
             arguments = new StringBuilder("**Arguments:**\n");
 
             this.commandArguments.forEach(commandArgument -> {
                 mainMessage.append(" <").append(commandArgument.getKey()).append(">");
-                arguments.append("`").append(commandArgument.getKey()).append("`: ").append(commandArgument.getPrompt()).append("\n");
+                arguments.append("`").append(commandArgument.getKey());
+
+                if (commandArgument.isOptional()) {
+                    arguments.append(" (optional)");
+                }
+
+                arguments.append("`")
+                        .append(": ")
+                        .append(commandArgument.getPrompt())
+                        .append("\n");
             });
 
             mainMessage.append("`\n").append(arguments);
