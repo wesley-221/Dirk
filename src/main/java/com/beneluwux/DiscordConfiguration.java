@@ -41,12 +41,15 @@ import java.util.Map;
 public class DiscordConfiguration {
     private final ApplicationContext applicationContext;
     private final String discordApiKey;
+    private final String discordStatus;
     private DiscordApi discordApi;
 
+
     @Autowired
-    public DiscordConfiguration(ApplicationContext applicationContext, @Value("${discord.api.key}") String discordApiKey) {
+    public DiscordConfiguration(ApplicationContext applicationContext, @Value("${discord.api.key}") String discordApiKey, @Value("${discord.status}") String discordStatus) {
         this.applicationContext = applicationContext;
         this.discordApiKey = discordApiKey;
+        this.discordStatus = discordStatus;
     }
 
     @Bean
@@ -73,7 +76,7 @@ public class DiscordConfiguration {
             Log.info("Registered listener " + listener.getClass().getName());
         }
 
-        discordApi.updateActivity("patat > friet");
+        discordApi.updateActivity(discordStatus);
 
         Log.info("Successfully initialized");
         Log.info("Discord invite link: " + discordApi.createBotInvite());

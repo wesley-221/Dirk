@@ -1,8 +1,34 @@
+#
+# MIT License
+#
+# Copyright (c) 2020 Wesley
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
 spring.jpa.hibernate.ddl-auto=update
 logging.level.root=info
 
-# Name of the bot
-name = Dirk
+# The name and generic information for the bot
+bot.name = Beneluwux
+bot.github = https://github.com/wesley-221/Beneluwux
+bot.github-issues = https://github.com/wesley-221/Beneluwux/issues
 
 # Discord related settings
 #############################
@@ -14,6 +40,9 @@ discord.production = false
 
 # Command prefix
 discord.prefix = !
+
+# The startup status
+discord.status = Type !help for help
 
 # Database related settings
 #############################
