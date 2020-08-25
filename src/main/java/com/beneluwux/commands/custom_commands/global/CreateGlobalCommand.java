@@ -50,6 +50,7 @@ public class CreateGlobalCommand extends Command {
     public CreateGlobalCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "createglobalcommand";
         this.description = "Create a global command that can be used in all guilds where I'm in.";
+        this.group = "Custom commands";
 
         this.requiresBotOwner = true;
 

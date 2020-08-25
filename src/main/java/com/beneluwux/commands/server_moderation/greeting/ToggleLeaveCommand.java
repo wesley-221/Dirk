@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.beneluwux.commands.greeting;
+package com.beneluwux.commands.server_moderation.greeting;
 
 import com.beneluwux.helper.EmbedHelper;
 import com.beneluwux.models.command.Command;
@@ -37,13 +37,14 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-public class ToggleJoinCommand extends Command {
+public class ToggleLeaveCommand extends Command {
     private final ServerTrafficRepository serverTrafficRepository;
 
     @Autowired
-    public ToggleJoinCommand(ServerTrafficRepository serverTrafficRepository) {
-        this.commandName = "togglejoin";
-        this.description = "Enable or disable the traffic message for when someone joins this guild. The message will be send in the channel where it was executed from.";
+    public ToggleLeaveCommand(ServerTrafficRepository serverTrafficRepository) {
+        this.commandName = "toggleleave";
+        this.description = "Enable or disable the traffic message for when someone leaves this guild. The message will be send in the channel where it was executed from.";
+        this.group = "Server moderation";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
@@ -59,22 +60,22 @@ public class ToggleJoinCommand extends Command {
         ServerTraffic serverTraffic = serverTrafficRepository.findByServerSnowflakeAndChannelSnowflake(serverSnowflake, channelSnowflake);
 
         if (serverTraffic == null) {
-            serverTraffic = new ServerTraffic(serverSnowflake, channelSnowflake, true, false);
+            serverTraffic = new ServerTraffic(serverSnowflake, channelSnowflake, false, true);
         } else {
-            serverTraffic.setShowJoining(!serverTraffic.getShowJoining());
+            serverTraffic.setShowLeaving(!serverTraffic.getShowLeaving());
         }
 
         serverTrafficRepository.save(serverTraffic);
 
         String parsedMessage = "You will " +
-                (serverTraffic.getShowJoining() ? "now receive" : "no longer") +
-                " a message when someone joins this guild." +
-                (serverTraffic.getShowJoining() ? "\n\nAn example message is shown below." : "");
+                (serverTraffic.getShowLeaving() ? "now receive" : "no longer") +
+                " a message when someone leaves this guild." +
+                (serverTraffic.getShowLeaving() ? "\n\nAn example message is shown below." : "");
 
         messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed(parsedMessage, messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
 
-        if (serverTraffic.getShowJoining()) {
-            messageCreateEvent.getChannel().sendMessage(EmbedHelper.personJoinedServer(serverTraffic.getJoinMessage(), Objects.requireNonNull(messageCreateEvent.getMessageAuthor().asUser().orElse(null))));
+        if (serverTraffic.getShowLeaving()) {
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.personLeaveServer(serverTraffic.getLeaveMessage(), Objects.requireNonNull(messageCreateEvent.getMessageAuthor().asUser().orElse(null))));
         }
     }
 

@@ -22,44 +22,55 @@
  * SOFTWARE.
  */
 
-package com.beneluwux.commands;
+package com.beneluwux.commands.basic;
 
 import com.beneluwux.models.command.Command;
-import com.beneluwux.models.command.CommandArgument;
-import com.beneluwux.models.command.CommandArgumentType;
 import com.beneluwux.models.command.CommandParameter;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.util.List;
 
 @Component
-public class ClearCommand extends Command {
-    public ClearCommand() {
-        this.commandName = "clear";
-        this.description = "Clear an X amount of lines in the channel it is executed from.";
+public class InviteCommand extends Command {
+    @Value("${bot.name}")
+    private String BOT_NAME;
 
-        this.requiresAdmin = true;
-        this.guildOnly = true;
+    @Value("${bot.github}")
+    private String GITHUB_LINK;
 
-        this.commandArguments.add(new CommandArgument("lines", "The amount of lines you want to clear", CommandArgumentType.Integer));
+    @Value("${bot.github-issues}")
+    private String GITHUB_ISSUES_LINK;
+
+    public InviteCommand() {
+        this.commandName = "invite";
+        this.description = "Sends a message with the invite link and Github information.";
+        this.group = "Basic";
     }
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent) {
+        String embedDescription = "**Add " + BOT_NAME + " to your Discord guild:** \n" +
+                messageCreateEvent.getApi().createBotInvite() + "\n\n" +
+                "**Bug/feature requests:** \n" +
+                "File an issue: " + GITHUB_ISSUES_LINK + "\n\n" +
+                "**Source code:** \n" +
+                GITHUB_LINK;
+
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setThumbnail(messageCreateEvent.getApi().getYourself().getAvatar().getUrl().toString())
+                .setTimestampToNow()
+                .setFooter(BOT_NAME)
+                .setColor(new Color(53, 84, 171))
+                .setDescription(embedDescription);
+
+        messageCreateEvent.getChannel().sendMessage(embedBuilder);
     }
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
-        CommandParameter commandParameter = commandParams.get(0);
-
-        if (!commandParameter.isParsedCorrectly()) {
-            messageCreateEvent.getChannel().sendMessage(getIncorrectCommandHelpFormat());
-            return;
-        }
-
-        int messagesToDelete = (Integer) commandParameter.getValue() > 0 ? (Integer) commandParameter.getValue() : 5;
-
-        messageCreateEvent.getServerTextChannel().ifPresent(serverTextChannel -> serverTextChannel.getMessages(messagesToDelete).whenCompleteAsync((messages, throwable) -> messages.deleteAll()));
     }
 }

@@ -44,6 +44,7 @@ public class SetupBeneluxServerCommand extends Command {
     public SetupBeneluxServerCommand(@Value("${discord.prefix}") String discordCommandPrefix) {
         this.commandName = "setupbeneluxserver";
         this.description = "Setup the embed message for the Beneluwux server.";
+        this.group = "Benelux";
 
         this.guildOnly = true;
         this.requiresAdmin = true;

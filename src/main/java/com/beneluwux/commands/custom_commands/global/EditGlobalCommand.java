@@ -47,6 +47,7 @@ public class EditGlobalCommand extends Command {
     public EditGlobalCommand(CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "editglobalcommand";
         this.description = "Edit an already existing global command";
+        this.group = "Custom commands";
 
         this.requiresBotOwner = true;
 

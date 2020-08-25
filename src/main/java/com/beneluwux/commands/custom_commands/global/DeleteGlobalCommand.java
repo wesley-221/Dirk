@@ -47,6 +47,7 @@ public class DeleteGlobalCommand extends Command {
     public DeleteGlobalCommand(CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "deleteglobalcommand";
         this.description = "Delete an already existing global command.";
+        this.group = "Custom commands";
 
         this.requiresBotOwner = true;
 

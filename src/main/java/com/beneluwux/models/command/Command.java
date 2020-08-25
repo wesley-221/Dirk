@@ -35,6 +35,7 @@ import java.util.List;
 public abstract class Command {
     protected String commandName;
     protected String description;
+    protected String group;
     protected List<CommandArgument> commandArguments = new ArrayList<>();
     protected Boolean requiresAdmin;
     protected Boolean requiresBotOwner;
@@ -68,6 +69,14 @@ public abstract class Command {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public List<CommandArgument> getCommandArguments() {
@@ -115,6 +124,7 @@ public abstract class Command {
         StringBuilder arguments;
 
         mainMessage.append(discordCommandPrefix).append(commandName).append("`\n")
+                .append("**Group:** `").append(group).append("`").append("\n")
                 .append(description).append("\n\n")
                 .append("**Format:** `").append(discordCommandPrefix).append(commandName);
 
@@ -143,6 +153,10 @@ public abstract class Command {
 
     public String getCommandHelpFormat(String extraMessage) {
         return extraMessage + getCommandHelpFormat();
+    }
+
+    public Boolean isValidCommand() {
+        return this.commandName != null && !this.commandName.isEmpty() && this.description != null && !this.description.isEmpty() && this.group != null && !this.group.isEmpty();
     }
 
     public String getIncorrectCommandHelpFormat() {

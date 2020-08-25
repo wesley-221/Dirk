@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.beneluwux.commands.misc;
+package com.beneluwux.commands.basic;
 
 import com.beneluwux.helper.EmbedHelper;
 import com.beneluwux.meta.RemindMeComponent;
@@ -47,6 +47,7 @@ public class RemindMeCommand extends Command {
     public RemindMeCommand(RemindMeComponent remindMeComponent) {
         this.commandName = "remindme";
         this.description = "Set a reminder that will be send to you in a direct message.";
+        this.group = "Basic";
 
         this.commandArguments.add(new CommandArgument("time amount", "The amount of seconds/minutes/hours until you will get the notification.", CommandArgumentType.Integer));
         this.commandArguments.add(new CommandArgument("time unit", "The time unit to wait in. \nAccepted units: `seconds`, `minutes`, `hours`.", CommandArgumentType.SingleString));

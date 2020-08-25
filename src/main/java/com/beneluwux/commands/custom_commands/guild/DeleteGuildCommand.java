@@ -47,6 +47,7 @@ public class DeleteGuildCommand extends Command {
     public DeleteGuildCommand(CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "deleteguildcommand";
         this.description = "Delete an already existing guild command.";
+        this.group = "Custom commands";
 
         this.requiresAdmin = true;
         this.guildOnly = true;

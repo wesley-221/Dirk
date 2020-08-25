@@ -66,6 +66,8 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                 Log.error("Unable to register the command " + command.getClass() + ". You have to set the command name in order for it to be recognized.");
             } else if (command.getDescription() == null) {
                 Log.error("Unable to register the command " + command.getClass() + ". You have to set the description in order for it to be recognized.");
+            } else if (command.getGroup() == null) {
+                Log.error("Unable to register the command " + command.getClass() + ". You have to set the group in order for it to be recognized.");
             } else if (command.getCommandArgumentsCount() > 0) {
                 int commandArgumentIndex = 1;
                 boolean commandArgumentsValid = true;

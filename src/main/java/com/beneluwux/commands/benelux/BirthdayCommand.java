@@ -48,6 +48,7 @@ public class BirthdayCommand extends Command {
     public BirthdayCommand(BirthdayRepository birthdayRepository) {
         this.commandName = "birthday";
         this.description = "Set your birthday so that everyone with the Birthday role will get a notification for when it is your birthday in the Beneluwux server.";
+        this.group = "Benelux";
 
         this.guildOnly = true;
 
