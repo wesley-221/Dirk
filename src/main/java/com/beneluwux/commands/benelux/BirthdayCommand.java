@@ -1,4 +1,4 @@
-package com.beneluwux.commands.beleux;
+package com.beneluwux.commands.benelux;
 
 import com.beneluwux.helper.EmbedHelper;
 import com.beneluwux.models.command.Command;
