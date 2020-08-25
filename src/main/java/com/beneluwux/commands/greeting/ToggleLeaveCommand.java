@@ -43,6 +43,8 @@ public class ToggleLeaveCommand extends Command {
     @Autowired
     public ToggleLeaveCommand(ServerTrafficRepository serverTrafficRepository) {
         this.commandName = "toggleleave";
+        this.description = "Enable or disable the traffic message for when someone leaves this guild. The message will be send in the channel where it was executed from.";
+
         this.requiresAdmin = true;
         this.guildOnly = true;
 

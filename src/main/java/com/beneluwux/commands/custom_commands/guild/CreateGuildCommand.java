@@ -49,6 +49,8 @@ public class CreateGuildCommand extends Command {
     @Autowired
     public CreateGuildCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "createguildcommand";
+        this.description = "Create a guild command that can only be used in the current guild.";
+
         this.requiresAdmin = true;
         this.guildOnly = true;
 

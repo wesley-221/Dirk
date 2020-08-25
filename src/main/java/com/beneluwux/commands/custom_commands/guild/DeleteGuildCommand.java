@@ -46,6 +46,8 @@ public class DeleteGuildCommand extends Command {
     @Autowired
     public DeleteGuildCommand(CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "deleteguildcommand";
+        this.description = "Delete an already existing guild command.";
+
         this.requiresAdmin = true;
         this.guildOnly = true;
 

@@ -46,6 +46,8 @@ public class EditGlobalCommand extends Command {
     @Autowired
     public EditGlobalCommand(CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "editglobalcommand";
+        this.description = "Edit an already existing global command";
+
         this.requiresBotOwner = true;
 
         this.commandArguments.add(new CommandArgument("command name", "The name of the command to edit", CommandArgumentType.SingleString));

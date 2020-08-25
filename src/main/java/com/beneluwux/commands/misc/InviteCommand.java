@@ -47,6 +47,7 @@ public class InviteCommand extends Command {
 
     public InviteCommand() {
         this.commandName = "invite";
+        this.description = "Sends a message with the invite link and Github information.";
     }
 
     @Override

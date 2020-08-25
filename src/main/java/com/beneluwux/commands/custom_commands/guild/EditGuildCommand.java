@@ -46,6 +46,8 @@ public class EditGuildCommand extends Command {
     @Autowired
     public EditGuildCommand(CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "editguildcommand";
+        this.description = "Edit an already existing guild command.";
+
         this.requiresAdmin = true;
         this.guildOnly = true;
 

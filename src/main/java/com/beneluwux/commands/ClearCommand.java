@@ -37,9 +37,12 @@ import java.util.List;
 public class ClearCommand extends Command {
     public ClearCommand() {
         this.commandName = "clear";
-        this.commandArguments.add(new CommandArgument("lines", "The amount of lines you want to clear", CommandArgumentType.Integer));
+        this.description = "Clear an X amount of lines in the channel it is executed from.";
+
         this.requiresAdmin = true;
         this.guildOnly = true;
+
+        this.commandArguments.add(new CommandArgument("lines", "The amount of lines you want to clear", CommandArgumentType.Integer));
     }
 
     @Override

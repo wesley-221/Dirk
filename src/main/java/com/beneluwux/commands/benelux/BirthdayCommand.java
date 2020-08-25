@@ -47,6 +47,8 @@ public class BirthdayCommand extends Command {
     @Autowired
     public BirthdayCommand(BirthdayRepository birthdayRepository) {
         this.commandName = "birthday";
+        this.description = "Set your birthday so that everyone with the Birthday role will get a notification for when it is your birthday in the Beneluwux server.";
+
         this.guildOnly = true;
 
         this.addCommandArgument(new CommandArgument("date", "Enter the date in dd/mm/yyyy format (01/05/1995).", CommandArgumentType.Date));

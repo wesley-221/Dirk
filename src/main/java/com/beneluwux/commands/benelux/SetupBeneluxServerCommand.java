@@ -43,9 +43,12 @@ public class SetupBeneluxServerCommand extends Command {
     @Autowired
     public SetupBeneluxServerCommand(@Value("${discord.prefix}") String discordCommandPrefix) {
         this.commandName = "setupbeneluxserver";
-        this.discordCommandPrefix = discordCommandPrefix;
+        this.description = "Setup the embed message for the Beneluwux server.";
+
         this.guildOnly = true;
         this.requiresAdmin = true;
+
+        this.discordCommandPrefix = discordCommandPrefix;
     }
 
     @Override

@@ -43,6 +43,8 @@ public class ToggleJoinCommand extends Command {
     @Autowired
     public ToggleJoinCommand(ServerTrafficRepository serverTrafficRepository) {
         this.commandName = "togglejoin";
+        this.description = "Enable or disable the traffic message for when someone joins this guild. The message will be send in the channel where it was executed from.";
+
         this.requiresAdmin = true;
         this.guildOnly = true;
 

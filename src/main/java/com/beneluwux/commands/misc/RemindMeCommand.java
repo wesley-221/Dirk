@@ -46,6 +46,7 @@ public class RemindMeCommand extends Command {
     @Autowired
     public RemindMeCommand(RemindMeComponent remindMeComponent) {
         this.commandName = "remindme";
+        this.description = "Set a reminder that will be send to you in a direct message.";
 
         this.commandArguments.add(new CommandArgument("time amount", "The amount of seconds/minutes/hours until you will get the notification.", CommandArgumentType.Integer));
         this.commandArguments.add(new CommandArgument("time unit", "The time unit to wait in. \nAccepted units: `seconds`, `minutes`, `hours`.", CommandArgumentType.SingleString));

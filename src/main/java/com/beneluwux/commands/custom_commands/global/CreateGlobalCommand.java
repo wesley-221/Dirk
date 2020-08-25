@@ -49,6 +49,8 @@ public class CreateGlobalCommand extends Command {
     @Autowired
     public CreateGlobalCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "createglobalcommand";
+        this.description = "Create a global command that can be used in all guilds where I'm in.";
+
         this.requiresBotOwner = true;
 
         this.commandArguments.add(new CommandArgument("command name", "The name of the command to create", CommandArgumentType.SingleString));
