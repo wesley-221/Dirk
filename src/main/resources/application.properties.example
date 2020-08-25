@@ -26,9 +26,9 @@ spring.jpa.hibernate.ddl-auto=update
 logging.level.root=info
 
 # The name and generic information for the bot
-bot.name = Beneluwux
-bot.github = https://github.com/wesley-221/Beneluwux
-bot.github-issues = https://github.com/wesley-221/Beneluwux/issues
+bot.name = Dirk
+bot.github = https://github.com/wesley-221/Dirk
+bot.github-issues = https://github.com/wesley-221/Dirk/issues
 
 # Discord related settings
 #############################
@@ -39,15 +39,15 @@ discord.api.key =
 discord.production = false
 
 # Command prefix
-discord.prefix = !
+discord.prefix = d!
 
 # The startup status
-discord.status = Type !help for help
+discord.status = Type d!help for help
 
 # Database related settings
 #############################
 # Database url
-database.url=jdbc:mysql://127.0.0.1:3306/benelux
+database.url=jdbc:mysql://127.0.0.1:3306/dirk
 
 # Database username
 database.username=root
