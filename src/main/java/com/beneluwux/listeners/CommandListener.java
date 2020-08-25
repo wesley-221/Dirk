@@ -99,7 +99,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
         // Check if the command exists
         if (command != null) {
             // Check if the command is guild only
-            if (command.isGuildOnly() && !messageCreateEvent.isServerMessage()) {
+            if (command.isGuildOnly() != null && command.isGuildOnly() && !messageCreateEvent.isServerMessage()) {
                 return;
             }
 
