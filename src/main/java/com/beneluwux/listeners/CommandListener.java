@@ -218,7 +218,7 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                         }
                     } catch (IndexOutOfBoundsException exception) {
                         CommandParameter commandParameter = new CommandParameter(commandArgument.getKey(), 0, true);
-                        commandParameter.setWasOptional(true);
+                        commandParameter.setIsOptional(true);
 
                         commandParameters.add(commandParameter);
                     }

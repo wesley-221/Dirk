@@ -28,13 +28,13 @@ public class CommandParameter {
     private String key;
     private Object value;
     private Boolean parsedCorrectly;
-    private Boolean wasOptional;
+    private Boolean isOptional;
 
     public CommandParameter(String key, Object value, Boolean parsedCorrectly) {
         this.key = key;
         this.value = value;
         this.parsedCorrectly = parsedCorrectly;
-        this.wasOptional = false;
+        this.isOptional = false;
     }
 
     public String getKey() {
@@ -61,12 +61,12 @@ public class CommandParameter {
         this.parsedCorrectly = parsedCorrectly;
     }
 
-    public Boolean wasOptional() {
-        return wasOptional;
+    public Boolean isOptional() {
+        return isOptional;
     }
 
-    public void setWasOptional(Boolean wasOptional) {
-        this.wasOptional = wasOptional;
+    public void setIsOptional(Boolean isOptional) {
+        this.isOptional = isOptional;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class CommandParameter {
                 "parameterKey='" + key + '\'' +
                 ", paramaterValue=" + value +
                 ", parameterParsedCorrectly=" + parsedCorrectly +
-                ", wasOptional=" + wasOptional +
+                ", isOptional=" + isOptional +
                 ", parameterType=" + value.getClass() +
                 '}';
     }
