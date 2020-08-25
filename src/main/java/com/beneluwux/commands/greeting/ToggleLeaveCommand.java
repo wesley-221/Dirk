@@ -20,6 +20,7 @@ public class ToggleLeaveCommand extends Command {
     public ToggleLeaveCommand(ServerTrafficRepository serverTrafficRepository) {
         this.commandName = "toggleleave";
         this.requiresAdmin = true;
+        this.guildOnly = true;
 
         this.serverTrafficRepository = serverTrafficRepository;
     }

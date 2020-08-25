@@ -20,6 +20,7 @@ public class SetupBeneluxServerCommand extends Command {
     public SetupBeneluxServerCommand(@Value("${discord.prefix}") String discordCommandPrefix) {
         this.commandName = "setupbeneluxserver";
         this.discordCommandPrefix = discordCommandPrefix;
+        this.guildOnly = true;
         this.requiresAdmin = true;
     }
 

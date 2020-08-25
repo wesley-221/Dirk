@@ -20,6 +20,7 @@ public class ToggleJoinCommand extends Command {
     public ToggleJoinCommand(ServerTrafficRepository serverTrafficRepository) {
         this.commandName = "togglejoin";
         this.requiresAdmin = true;
+        this.guildOnly = true;
 
         this.serverTrafficRepository = serverTrafficRepository;
     }

@@ -26,6 +26,7 @@ public class CreateGuildCommand extends Command {
     public CreateGuildCommand(ApplicationContext applicationContext, CustomCommandRepository customCommandRepository, CustomCommandComponent customCommandComponent) {
         this.commandName = "createguildcommand";
         this.requiresAdmin = true;
+        this.guildOnly = true;
 
         this.commandArguments.add(new CommandArgument("command name", "The name of the command to create", CommandArgumentType.SingleString));
         this.commandArguments.add(new CommandArgument("command output", "The output of the command", CommandArgumentType.String));

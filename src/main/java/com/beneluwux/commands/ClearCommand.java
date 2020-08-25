@@ -15,11 +15,11 @@ public class ClearCommand extends Command {
         this.commandName = "clear";
         this.commandArguments.add(new CommandArgument("lines", "The amount of lines you want to clear", CommandArgumentType.Integer));
         this.requiresAdmin = true;
+        this.guildOnly = true;
     }
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent) {
-
     }
 
     @Override

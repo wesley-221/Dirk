@@ -23,6 +23,8 @@ public class BirthdayCommand extends Command {
     @Autowired
     public BirthdayCommand(BirthdayRepository birthdayRepository) {
         this.commandName = "birthday";
+        this.guildOnly = true;
+
         this.addCommandArgument(new CommandArgument("date", "Enter the date in dd/mm/yyyy format (01/05/1995).", CommandArgumentType.Date));
 
         this.birthdayRepository = birthdayRepository;

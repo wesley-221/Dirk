@@ -14,6 +14,7 @@ public abstract class Command {
     protected List<CommandArgument> commandArguments = new ArrayList<>();
     protected Boolean requiresAdmin;
     protected Boolean requiresBotOwner;
+    protected Boolean guildOnly;
     @Value("${discord.prefix}")
     private String discordCommandPrefix;
 
@@ -75,6 +76,14 @@ public abstract class Command {
 
     public void setRequiresBotOwner(Boolean requiresBotOwner) {
         this.requiresBotOwner = requiresBotOwner;
+    }
+
+    public Boolean isGuildOnly() {
+        return guildOnly;
+    }
+
+    public void setGuildOnly(Boolean guildOnly) {
+        this.guildOnly = guildOnly;
     }
 
     public String getCommandHelpFormat() {

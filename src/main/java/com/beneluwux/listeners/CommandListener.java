@@ -98,6 +98,11 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
         // Check if the command exists
         if (command != null) {
+            // Check if the command is guild only
+            if (command.isGuildOnly() && !messageCreateEvent.isServerMessage()) {
+                return;
+            }
+
             // Check if the command requires owner privileges
             if (command.getRequiresBotOwner() != null && command.getRequiresBotOwner()) {
                 if (!messageCreateEvent.getMessageAuthor().isBotOwner()) {
