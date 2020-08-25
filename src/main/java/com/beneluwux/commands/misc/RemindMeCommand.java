@@ -69,13 +69,13 @@ public class RemindMeCommand extends Command {
 
         // Check if parameters have been parsed correctly
         if (!timeAmount.isParsedCorrectly() || !timeUnit.isParsedCorrectly()) {
-            messageCreateEvent.getChannel().sendMessage(this.getIncorrectCommandHelpFormat());
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed(this.getIncorrectCommandHelpFormat(), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
         // Check if time unit is a proper time unit
         if (!acceptedTimeUnits.contains(timeUnit.getValue().toString())) {
-            messageCreateEvent.getChannel().sendMessage(this.getIncorrectCommandHelpFormat());
+            messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericErrorEmbed(this.getIncorrectCommandHelpFormat(), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
