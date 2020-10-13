@@ -119,6 +119,11 @@ public abstract class Command {
         this.guildOnly = guildOnly;
     }
 
+    /**
+     * Get a pre-formatted string that shows the information of the command
+     *
+     * @return the information of the command
+     */
     public String getCommandHelpFormat() {
         StringBuilder mainMessage = new StringBuilder("**Command:** `");
         StringBuilder arguments;
@@ -151,19 +156,53 @@ public abstract class Command {
         return mainMessage.toString();
     }
 
+    /**
+     * Get a pre-formatted string that shows the information of the command with an extra message on top
+     *
+     * @param extraMessage the message to send with the help message
+     * @return the information and message of the command
+     */
     public String getCommandHelpFormat(String extraMessage) {
         return extraMessage + getCommandHelpFormat();
     }
 
+    /**
+     * Check if the command is a valid command. commandName, description and group has to be filled in
+     *
+     * @return the validation of the command
+     */
     public Boolean isValidCommand() {
         return this.commandName != null && !this.commandName.isEmpty() && this.description != null && !this.description.isEmpty() && this.group != null && !this.group.isEmpty();
     }
 
+    /**
+     * Sends a generic message that something went wrong with executing this command
+     *
+     * @return the generic message
+     */
     public String getIncorrectCommandHelpFormat() {
         return "**There was an error while performing the command.**\n\n" + getCommandHelpFormat();
     }
 
+    /**
+     * Remove all CommandArgument.Helper from the command arguments
+     */
+    public void removeAllHelperArguments() {
+        this.commandArguments.removeIf(commandArgument -> commandArgument.getType() == CommandArgumentType.Helper);
+    }
+
+    /**
+     * The method that will be executed when no CommandParameters were found
+     *
+     * @param messageCreateEvent the MessageCreateEvent object of the current channel it was send in
+     */
     public abstract void execute(MessageCreateEvent messageCreateEvent);
 
+    /**
+     * The method that will be executed when CommandParameters were found
+     *
+     * @param messageCreateEvent the MessageCreateEvent object of the current channel it was send in
+     * @param commandParams      the parameters that were found
+     */
     public abstract void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams);
 }

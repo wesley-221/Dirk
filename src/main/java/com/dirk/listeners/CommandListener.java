@@ -86,6 +86,11 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
                     commandArgumentIndex++;
                 }
 
+                // Set command arguments as valid when last argument is Helper
+                if (command.getCommandArguments().get(command.getCommandArgumentsCount() - 1).getType() == CommandArgumentType.Helper && !commandArgumentsValid) {
+                    commandArgumentsValid = true;
+                }
+
                 if (commandArgumentsValid) {
                     allCommands.add(command);
                     Log.info("Registered the command " + command.getClass().getName());
@@ -150,6 +155,9 @@ public class CommandListener implements MessageCreateListener, RegisterListener 
 
             // Check if the command has arguments
             if (command.hasCommandArguments()) {
+                // Remove all CommandArgumentType.Helper arguments
+                command.removeAllHelperArguments();
+
                 // Check if last argument is a String
                 if (command.getCommandArguments().get(command.getCommandArgumentsCount() - 1).getType() == CommandArgumentType.String) {
                     String commandArgumentsString = String.join(" ", commandSplit);

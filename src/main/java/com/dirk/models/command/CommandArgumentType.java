@@ -29,5 +29,6 @@ public enum CommandArgumentType {
     String,
     Boolean,
     Date,
-    Integer
+    Integer,
+    Helper
 }
