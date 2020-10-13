@@ -185,13 +185,6 @@ public abstract class Command {
     }
 
     /**
-     * Remove all CommandArgument.Helper from the command arguments
-     */
-    public void removeAllHelperArguments() {
-        this.commandArguments.removeIf(commandArgument -> commandArgument.getType() == CommandArgumentType.Helper);
-    }
-
-    /**
      * The method that will be executed when no CommandParameters were found
      *
      * @param messageCreateEvent the MessageCreateEvent object of the current channel it was send in
