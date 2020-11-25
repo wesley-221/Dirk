@@ -44,7 +44,6 @@ public class DiscordConfiguration {
     private final String discordStatus;
     private DiscordApi discordApi;
 
-
     @Autowired
     public DiscordConfiguration(ApplicationContext applicationContext, @Value("${discord.api.key}") String discordApiKey, @Value("${discord.status}") String discordStatus) {
         this.applicationContext = applicationContext;
@@ -56,6 +55,7 @@ public class DiscordConfiguration {
     public void startDiscordBot() {
         this.discordApi = new DiscordApiBuilder()
                 .setToken(discordApiKey)
+                .setAllIntents()
                 .login()
                 .join();
 

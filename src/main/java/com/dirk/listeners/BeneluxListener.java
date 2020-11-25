@@ -42,23 +42,23 @@ public class BeneluxListener implements ReactionAddListener, ReactionRemoveListe
 
         if (channelName.equals(WHITELIST_CHANNEL)) {
             if (reaction.getEmoji().equalsEmoji(Emoji.NETHERLANDS_FLAG)) {
-                reaction.getApi().getRolesByName("Netherlands").stream().findFirst().ifPresent(reaction.getUser()::addRole);
+                reaction.getApi().getRolesByName("Netherlands").stream().findFirst().ifPresent(role -> reaction.getUser().get().addRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.BELGIUM_FLAG)) {
-                reaction.getApi().getRolesByName("Belgium").stream().findFirst().ifPresent(reaction.getUser()::addRole);
+                reaction.getApi().getRolesByName("Belgium").stream().findFirst().ifPresent(role -> reaction.getUser().get().addRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.LUXEMBOURG_FLAG)) {
-                reaction.getApi().getRolesByName("Luxembourg").stream().findFirst().ifPresent(reaction.getUser()::addRole);
+                reaction.getApi().getRolesByName("Luxembourg").stream().findFirst().ifPresent(role -> reaction.getUser().get().addRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.BEER)) {
-                reaction.getApi().getRolesByName("Alcoholic").stream().findFirst().ifPresent(reaction.getUser()::addRole);
+                reaction.getApi().getRolesByName("Alcoholic").stream().findFirst().ifPresent(role -> reaction.getUser().get().addRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.CAKE)) {
-                reaction.getApi().getRolesByName("Birthday").stream().findFirst().ifPresent(reaction.getUser()::addRole);
+                reaction.getApi().getRolesByName("Birthday").stream().findFirst().ifPresent(role -> reaction.getUser().get().addRole(role));
             }
         }
     }
@@ -69,23 +69,23 @@ public class BeneluxListener implements ReactionAddListener, ReactionRemoveListe
 
         if (channelName.equals(WHITELIST_CHANNEL)) {
             if (reaction.getEmoji().equalsEmoji(Emoji.NETHERLANDS_FLAG)) {
-                reaction.getApi().getRolesByName("Netherlands").stream().findFirst().ifPresent(reaction.getUser()::removeRole);
+                reaction.getApi().getRolesByName("Netherlands").stream().findFirst().ifPresent(role -> reaction.getUser().get().removeRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.BELGIUM_FLAG)) {
-                reaction.getApi().getRolesByName("Belgium").stream().findFirst().ifPresent(reaction.getUser()::removeRole);
+                reaction.getApi().getRolesByName("Belgium").stream().findFirst().ifPresent(role -> reaction.getUser().get().removeRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.LUXEMBOURG_FLAG)) {
-                reaction.getApi().getRolesByName("Luxembourg").stream().findFirst().ifPresent(reaction.getUser()::removeRole);
+                reaction.getApi().getRolesByName("Luxembourg").stream().findFirst().ifPresent(role -> reaction.getUser().get().removeRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.BEER)) {
-                reaction.getApi().getRolesByName("Alcoholic").stream().findFirst().ifPresent(reaction.getUser()::removeRole);
+                reaction.getApi().getRolesByName("Alcoholic").stream().findFirst().ifPresent(role -> reaction.getUser().get().removeRole(role));
             }
 
             if (reaction.getEmoji().equalsEmoji(Emoji.CAKE)) {
-                reaction.getApi().getRolesByName("Birthday").stream().findFirst().ifPresent(reaction.getUser()::removeRole);
+                reaction.getApi().getRolesByName("Birthday").stream().findFirst().ifPresent(role -> reaction.getUser().get().removeRole(role));
             }
         }
     }
