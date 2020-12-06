@@ -34,7 +34,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -80,27 +80,31 @@ public class RemindMeCommand extends Command {
             return;
         }
 
-        long delay = 0;
+        long delay;
         String timeUnitString = "";
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime newTime = null;
 
         // Add delay in seconds
         if (timeUnit.getValue().equals("second") || timeUnit.getValue().equals("seconds")) {
-            delay = ChronoUnit.MILLIS.between(LocalTime.now(), LocalTime.now().plusSeconds(Integer.toUnsignedLong((Integer) timeAmount.getValue())));
+            newTime = currentTime.plusSeconds(Integer.toUnsignedLong((Integer) timeAmount.getValue()));
             timeUnitString = (Integer) timeAmount.getValue() > 1 ? "seconds" : "second";
         }
         // Add delay in minutes
         else if (timeUnit.getValue().equals("minute") || timeUnit.getValue().equals("minutes")) {
-            delay = ChronoUnit.MILLIS.between(LocalTime.now(), LocalTime.now().plusMinutes(Integer.toUnsignedLong((Integer) timeAmount.getValue())));
+            newTime = currentTime.plusMinutes(Integer.toUnsignedLong((Integer) timeAmount.getValue()));
             timeUnitString = (Integer) timeAmount.getValue() > 1 ? "minutes" : "minute";
         }
         // Add delay in hours
         else if (timeUnit.getValue().equals("hour") || timeUnit.getValue().equals("hours")) {
-            delay = ChronoUnit.MILLIS.between(LocalTime.now(), LocalTime.now().plusHours(Integer.toUnsignedLong((Integer) timeAmount.getValue())));
+            newTime = currentTime.plusHours(Integer.toUnsignedLong((Integer) timeAmount.getValue()));
             timeUnitString = (Integer) timeAmount.getValue() > 1 ? "hours" : "hour";
         }
 
+        delay = ChronoUnit.SECONDS.between(currentTime, newTime);
+
         messageCreateEvent.getChannel().sendMessage(EmbedHelper.genericSuccessEmbed("I will remind you in " + timeAmount.getValue() + " " + timeUnitString + "!", null).setAuthor("Reminder for " + messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
 
-        remindMeComponent.getScheduler().schedule(() -> messageCreateEvent.getMessageAuthor().asUser().ifPresent(user -> user.sendMessage(EmbedHelper.reminderEmbed((String) message.getValue()))), delay, TimeUnit.MILLISECONDS);
+        remindMeComponent.getScheduler().schedule(() -> messageCreateEvent.getMessageAuthor().asUser().ifPresent(user -> user.sendMessage(EmbedHelper.reminderEmbed((String) message.getValue()))), delay, TimeUnit.SECONDS);
     }
 }
