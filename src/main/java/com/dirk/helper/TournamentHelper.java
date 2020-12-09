@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 public class TournamentHelper {
     /**
-     * Check if a tournament is running. Sends a message if there isn't a tournament running.
+     * Get the tournament if there is one running
      *
      * @param messageCreateEvent   the MessageCreateEvent object
      * @param tournamentRepository the TournamentRepository
@@ -69,5 +69,31 @@ public class TournamentHelper {
         }
 
         return foundRole.orElse(null);
+    }
+
+    /**
+     * Validate the input to see if it is a correct row
+     *
+     * @param row the row to check
+     * @return result of whether or not the row is correct
+     */
+    public static Boolean validateSpreadsheetRowInput(String row) {
+        Pattern rowPattern = Pattern.compile("[A-Za-z0-9]{1,3}:[A-Za-z0-9]{1,3}");
+        Matcher matcher = rowPattern.matcher(row);
+
+        return matcher.find();
+    }
+
+    /**
+     * Validate if the input to see if it is a correct date format
+     *
+     * @param dateFormat the format of the date
+     * @return result of whehter or not the date format is correct
+     */
+    public static Boolean validateDateFormat(String dateFormat) {
+        Pattern dateFormatPattern = Pattern.compile("[%dm][/-][%dm]");
+        Matcher matcher = dateFormatPattern.matcher(dateFormat);
+
+        return matcher.find();
     }
 }

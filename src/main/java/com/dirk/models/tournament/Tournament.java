@@ -38,6 +38,7 @@ public class Tournament {
     private String serverSnowflake;
     private String name;
     private String spreadsheet;
+    private String scheduleTab;
 
     private Boolean isTeamTournament;
 
@@ -47,6 +48,19 @@ public class Tournament {
     private String streamRoleSnowflake;
     private String teamCaptainRoleSnowflake;
     private String playerRoleSnowflake;
+
+    private String refereeRow;
+    private String streamerRow;
+    private String commentatorRow;
+
+    private String playerOneRow;
+    private String playerTwoRow;
+
+    private String dateRow;
+    private String timeRow;
+    private String matchIdRow;
+
+    private String dateFormat;
 
     public Tournament() {
         this.isTeamTournament = false;
