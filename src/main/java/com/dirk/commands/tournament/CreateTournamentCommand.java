@@ -71,6 +71,13 @@ public class CreateTournamentCommand extends Command {
                     .getChannel()
                     .sendMessage(EmbedHelper.genericErrorEmbed("There already is a tournament running in this server: `" + existingTournament.getName() + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } else {
+            if (tournamentName.length() < 3) {
+                messageCreateEvent
+                        .getChannel()
+                        .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("The name of the tournament has to be at least 2 characters. \n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                return;
+            }
+
             Tournament tournament = new Tournament(serverSnowflake, tournamentName);
             tournamentRepository.save(tournament);
 

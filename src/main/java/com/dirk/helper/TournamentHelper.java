@@ -88,11 +88,24 @@ public class TournamentHelper {
      * Validate if the input to see if it is a correct date format
      *
      * @param dateFormat the format of the date
-     * @return result of whehter or not the date format is correct
+     * @return result of whether or not the date format is correct
      */
     public static Boolean validateDateFormat(String dateFormat) {
         Pattern dateFormatPattern = Pattern.compile("[%dm][/-][%dm]");
         Matcher matcher = dateFormatPattern.matcher(dateFormat);
+
+        return matcher.find();
+    }
+
+    /**
+     * Validate if the input is a correct spreadsheet format
+     *
+     * @param spreadsheetUrl the url to the spreadsheet
+     * @return result of whether or not the spreadsheet format is correct
+     */
+    public static Boolean validateSpreadsheetUrl(String spreadsheetUrl) {
+        Pattern spreadsheetPattern = Pattern.compile("https://docs.google.com/spreadsheets/d/[A-Za-z0-9-_]+");
+        Matcher matcher = spreadsheetPattern.matcher(spreadsheetUrl);
 
         return matcher.find();
     }

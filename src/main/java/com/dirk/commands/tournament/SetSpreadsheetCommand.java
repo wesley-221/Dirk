@@ -32,8 +32,6 @@ import com.dirk.models.command.CommandArgumentType;
 import com.dirk.models.command.CommandParameter;
 import com.dirk.models.tournament.Tournament;
 import com.dirk.repositories.TournamentRepository;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -72,6 +70,13 @@ public class SetSpreadsheetCommand extends Command {
             messageCreateEvent
                     .getChannel()
                     .sendMessage(EmbedHelper.genericErrorEmbed("There is no tournament running in this server.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
+        if (!TournamentHelper.validateSpreadsheetUrl(spreadsheetLink)) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid spreadsheet given. \n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 

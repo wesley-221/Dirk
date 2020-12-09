@@ -71,6 +71,7 @@ public class Tournament {
 
     public Tournament() {
         this.isTeamTournament = false;
+        this.dateFormat = "%d/%m";
     }
 
     public Tournament(String serverSnowflake, String name) {
