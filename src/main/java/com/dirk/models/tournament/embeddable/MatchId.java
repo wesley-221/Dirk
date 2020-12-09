@@ -22,28 +22,18 @@
  * SOFTWARE.
  */
 
-package com.dirk.models.entities.embeddables;
+package com.dirk.models.tournament.embeddable;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class BirthdayId implements Serializable {
+public class MatchId implements Serializable {
     private String serverSnowflake;
-    private String userSnowflake;
+    private String matchId;
 
-    public BirthdayId() {
-    }
-
-    public BirthdayId(String serverSnowflake, String userSnowflake) {
-        this.serverSnowflake = serverSnowflake;
-        this.userSnowflake = userSnowflake;
-    }
-
-    public BirthdayId(Long serverSnowflake, Long userSnowflake) {
-        this.serverSnowflake = serverSnowflake.toString();
-        this.userSnowflake = userSnowflake.toString();
+    public MatchId() {
     }
 
     public String getServerSnowflake() {
@@ -54,12 +44,12 @@ public class BirthdayId implements Serializable {
         this.serverSnowflake = serverSnowflake;
     }
 
-    public String getUserSnowflake() {
-        return userSnowflake;
+    public String getMatchId() {
+        return matchId;
     }
 
-    public void setUserSnowflake(String userSnowflake) {
-        this.userSnowflake = userSnowflake;
+    public void setMatchId(String matchId) {
+        this.matchId = matchId;
     }
 
     @Override
@@ -67,13 +57,13 @@ public class BirthdayId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        BirthdayId that = (BirthdayId) o;
+        MatchId that = (MatchId) o;
 
-        return this.serverSnowflake.equals(that.serverSnowflake) && this.userSnowflake.equals(that.userSnowflake);
+        return this.serverSnowflake.equals(that.serverSnowflake) && this.matchId.equals(that.matchId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.serverSnowflake, this.userSnowflake);
+        return Objects.hash(this, serverSnowflake, this.matchId);
     }
 }

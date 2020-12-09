@@ -27,8 +27,12 @@ package com.dirk.models.tournament;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -62,6 +66,9 @@ public class Tournament {
 
     private String dateFormat;
 
+    @OneToMany(mappedBy = "tournament", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Match> allMatches = new ArrayList<>();
+
     public Tournament() {
         this.isTeamTournament = false;
     }
@@ -71,5 +78,13 @@ public class Tournament {
 
         this.serverSnowflake = serverSnowflake;
         this.name = name;
+    }
+
+    public void setAllMatches(List<Match> allMatches) {
+        for (Match match : allMatches) {
+            match.setTournament(this);
+        }
+
+        this.allMatches = allMatches;
     }
 }
