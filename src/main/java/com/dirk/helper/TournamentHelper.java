@@ -96,4 +96,59 @@ public class TournamentHelper {
 
         return matcher.find();
     }
+
+    /**
+     * Check if the tournament is properly setup
+     *
+     * @param tournament the tournament to check
+     * @return if the tournament is properly setup
+     */
+    public static Boolean isTournamentProperlySetup(Tournament tournament) {
+        return tournament != null &&
+                tournament.getSpreadsheet() != null &&
+                tournament.getScheduleTab() != null &&
+                tournament.getIsTeamTournament() != null &&
+                tournament.getMatchIdRow() != null &&
+                tournament.getDateFormat() != null &&
+                tournament.getPlayerOneRow() != null &&
+                tournament.getPlayerTwoRow() != null &&
+                tournament.getRefereeRow() != null &&
+                tournament.getStreamerRow() != null &&
+                tournament.getCommentatorRow() != null &&
+                tournament.getDateRow() != null &&
+                tournament.getTimeRow() != null;
+    }
+
+    /**
+     * Get the status of the given tournament
+     *
+     * @param tournament the tournament to check
+     * @return the status of the tournament
+     */
+    public static String getTournamentStatus(Tournament tournament) {
+        return "**Spreadsheet:** " +
+                (tournament.getSpreadsheet() != null ? "[link to spreadsheet](" + tournament.getSpreadsheet() + ")" : "Not set") + "\n" +
+                "**Schedule tab:** " +
+                (tournament.getScheduleTab() != null ? "`" + tournament.getScheduleTab() + "`" : "Not set") + "\n" +
+                "**Tournament type:** " +
+                (tournament.getIsTeamTournament() != null ? "`" + (tournament.getIsTeamTournament() ? "teams" : "solo") + "`" : "Not set") + "\n\n" +
+                "**Match id row:** " +
+                (tournament.getMatchIdRow() != null ? "`" + tournament.getMatchIdRow() + "`" : "Not set") + "\n" +
+                "**Date format:** " +
+                (tournament.getDateFormat() != null ? "`" + tournament.getDateFormat() + "`" : "Not set") + "\n\n" +
+                "**Player/team 1 row:** " +
+                (tournament.getPlayerOneRow() != null ? "`" + tournament.getPlayerOneRow() + "`" : "Not set") + "\n" +
+                "**Player/team 2 row:** " +
+                (tournament.getPlayerTwoRow() != null ? "`" + tournament.getPlayerTwoRow() + "`" : "Not set") + "\n\n" +
+                "**Referee row**: " +
+                (tournament.getRefereeRow() != null ? "`" + tournament.getRefereeRow() + "`" : "Not set") + "\n" +
+                "**Streamer row**: " +
+                (tournament.getStreamerRow() != null ? "`" + tournament.getStreamerRow() + "`" : "Not set") + "\n" +
+                "**Commentator row**: " +
+                (tournament.getCommentatorRow() != null ? "`" + tournament.getCommentatorRow() + "`" : "Not set") + "\n\n" +
+                "**Date row**: " +
+                (tournament.getDateRow() != null ? "`" + tournament.getDateRow() + "`" : "Not set") + "\n" +
+                "**Time row**: " +
+                (tournament.getTimeRow() != null ? "`" + tournament.getTimeRow() + "`" : "Not set") + "\n";
+    }
 }

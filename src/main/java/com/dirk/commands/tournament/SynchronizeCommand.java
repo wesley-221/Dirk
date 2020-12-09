@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.dirk.commands.tournament.spreadsheet_rows;
+package com.dirk.commands.tournament;
 
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.TournamentHelper;
@@ -39,17 +39,19 @@ import java.awt.*;
 import java.util.List;
 
 @Component
-public class TournamentStatusCommand extends Command {
+public class SynchronizeCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public TournamentStatusCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "tournamentstatus";
-        this.description = "Get the status of how the tournament is setup.";
+    public SynchronizeCommand(final TournamentRepository tournamentRepository) {
+        this.commandName = "synchronize";
+        this.description = "Synchronize the spreadsheet so that the date is up to date.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
+
+//        this.commandArguments.add(new CommandArgument("tournament name", "The name of the tournament.", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
@@ -65,13 +67,18 @@ public class TournamentStatusCommand extends Command {
             return;
         }
 
-        messageCreateEvent
-                .getChannel()
-                .sendMessage(new EmbedBuilder()
-                        .setTimestampToNow()
-                        .setColor(Color.GREEN)
-                        .setAuthor("Tournament status")
-                        .setDescription(TournamentHelper.getTournamentStatus(existingTournament)));
+        if(!TournamentHelper.isTournamentProperlySetup(existingTournament)) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(new EmbedBuilder()
+                    .setTimestampToNow()
+                    .setColor(Color.RED)
+                    .setAuthor("Tournament has not been finalized yet.")
+                    .setDescription("The tournament hasn't been setup properly yet. Check the table below to see what you still have to set: \n\n" + TournamentHelper.getTournamentStatus(existingTournament)));
+            return;
+        }
+
+
     }
 
     @Override
