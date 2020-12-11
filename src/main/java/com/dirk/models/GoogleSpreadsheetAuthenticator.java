@@ -25,12 +25,14 @@
 package com.dirk.models;
 
 import com.dirk.DirkApplication;
+import com.dirk.helper.TournamentHelper;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -77,6 +79,41 @@ public class GoogleSpreadsheetAuthenticator {
     public GoogleSpreadsheetAuthenticator(String spreadsheetId) throws IOException, GeneralSecurityException {
         this();
         this.spreadsheetId = spreadsheetId;
+    }
+
+    /**
+     * Create a message for when an exception occurs
+     *
+     * @param ex the exception
+     * @return the message
+     */
+    public static String parseException(Exception ex) {
+        String errorMessage;
+
+        if (ex instanceof GoogleJsonResponseException) {
+            int statusCode = ((GoogleJsonResponseException) ex).getStatusCode();
+
+            switch (statusCode) {
+                case 403:
+                    errorMessage = "DirkBot does not have permission to read/write the spreadsheet. \n\n" +
+                            "Share the spreadsheet with `" + TournamentHelper.DIRK_BOT_EMAIL + "` and give it editor permissions.";
+                    break;
+                case 404:
+                    errorMessage = "Unable to find the spreadsheet. \n\n" +
+                            "Make sure the spreadsheet url looks like this: " +
+                            "`https://docs.google.com/spreadsheets/d/1yN-vwlhBEpdRJzSDRYM4IToLaXulLRrW_LYT-Hitd64/edit#gid=193799805`";
+                    break;
+                default:
+                    errorMessage = "Unknown error, contact Wesley#2772 (GoogleJsonResponseException): " + ex.getMessage();
+                    break;
+            }
+        } else {
+            errorMessage = "Unknown error, contact Wesley#2772 (Exception): " + ex.getMessage();
+        }
+
+        ex.printStackTrace();
+
+        return errorMessage;
     }
 
     /**

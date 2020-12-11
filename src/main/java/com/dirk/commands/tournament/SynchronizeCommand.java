@@ -33,7 +33,6 @@ import com.dirk.models.tournament.Match;
 import com.dirk.models.tournament.Tournament;
 import com.dirk.models.tournament.embeddable.MatchId;
 import com.dirk.repositories.TournamentRepository;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,35 +148,9 @@ public class SynchronizeCommand extends Command {
                     .getChannel()
                     .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully synchronized all matches.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } catch (Exception ex) {
-            String errorMessage;
-
-            if (ex instanceof GoogleJsonResponseException) {
-                int statusCode = ((GoogleJsonResponseException) ex).getStatusCode();
-
-                switch (statusCode) {
-                    case 403:
-                        errorMessage = "DirkBot does not have permission to read/write the spreadsheet. \n\n" +
-                                "Share the spreadsheet with `" + TournamentHelper.DIRK_BOT_EMAIL + "` and give it editor permissions.";
-                        break;
-                    case 404:
-                        errorMessage = "Unable to find the spreadsheet. \n\n" +
-                                "Make sure the spreadsheet url looks like this: " +
-                                "`https://docs.google.com/spreadsheets/d/1yN-vwlhBEpdRJzSDRYM4IToLaXulLRrW_LYT-Hitd64/edit#gid=193799805`";
-                        break;
-                    default:
-                        errorMessage = "Unknown error, contact Wesley#2772 (GoogleJsonResponseException): " + ex.getMessage();
-                        break;
-                }
-
-                ex.printStackTrace();
-            } else {
-                errorMessage = "Unknown error, contact Wesley#2772 (Exception): " + ex.getMessage();
-                ex.printStackTrace();
-            }
-
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed(errorMessage, messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    .sendMessage(EmbedHelper.genericErrorEmbed(GoogleSpreadsheetAuthenticator.parseException(ex), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         }
     }
 
