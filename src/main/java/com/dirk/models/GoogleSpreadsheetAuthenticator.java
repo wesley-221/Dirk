@@ -39,6 +39,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.*;
@@ -138,5 +139,30 @@ public class GoogleSpreadsheetAuthenticator {
                 .execute();
 
         return response.getValues();
+    }
+
+    /**
+     * Update data on the spreadsheet
+     *
+     * @param tab   the tab to change
+     * @param range the range to change
+     * @param value the new value of the range
+     * @return the updated value
+     * @throws IOException the error when something fails
+     */
+    public UpdateValuesResponse updateDataOnSheet(String tab, String range, String value) throws IOException {
+        List<List<Object>> values = Collections.singletonList(
+                Collections.singletonList(
+                        value
+                )
+        );
+
+        ValueRange body = new ValueRange()
+                .setValues(values);
+
+        return this.service.spreadsheets().values()
+                .update(this.spreadsheetId, tab + "!" + range, body)
+                .setValueInputOption("USER_ENTERED")
+                .execute();
     }
 }
