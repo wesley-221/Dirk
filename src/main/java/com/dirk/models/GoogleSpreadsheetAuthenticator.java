@@ -95,9 +95,9 @@ public class GoogleSpreadsheetAuthenticator {
      * @return the data from the given range
      * @throws IOException the error when something fails
      */
-    public List<List<Object>> getDataFromRange(String range) throws IOException {
+    public List<List<Object>> getDataFromRange(String tab, String range) throws IOException {
         ValueRange response = this.service.spreadsheets().values()
-                .get(this.spreadsheetId, range)
+                .get(this.spreadsheetId, tab + "!" + range)
                 .execute();
 
         return response.getValues();
