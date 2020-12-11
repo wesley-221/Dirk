@@ -42,8 +42,6 @@ import java.util.List;
 public class SetSpreadsheetCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
-    private final String DIRK_BOT_EMAIL = "dirk.osu.bot@gmail.com";
-
     @Autowired
     public SetSpreadsheetCommand(TournamentRepository tournamentRepository) {
         this.commandName = "setspreadsheet";
@@ -88,6 +86,6 @@ public class SetSpreadsheetCommand extends Command {
         messageCreateEvent
                 .getChannel()
                 .sendMessage(EmbedHelper.genericSuccessEmbed("Set the spreadsheet link to `" + spreadsheetLink + "`. " +
-                        "\n\n**In order for the bot to edit the spreadsheet, make sure to give edit permission to `" + DIRK_BOT_EMAIL + "`.**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                        "\n\n**In order for the bot to edit the spreadsheet, make sure to give edit permission to `" + TournamentHelper.DIRK_BOT_EMAIL + "`.**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }

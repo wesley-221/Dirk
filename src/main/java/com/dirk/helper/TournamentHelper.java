@@ -36,6 +36,11 @@ import java.util.regex.Pattern;
 
 public class TournamentHelper {
     /**
+     * The email of Dirk to add to spreadsheets
+     */
+    public static final String DIRK_BOT_EMAIL = "dirk.osu.bot@gmail.com";
+
+    /**
      * Get the tournament if there is one running
      *
      * @param messageCreateEvent   the MessageCreateEvent object
@@ -108,6 +113,25 @@ public class TournamentHelper {
         Matcher matcher = spreadsheetPattern.matcher(spreadsheetUrl);
 
         return matcher.find();
+    }
+
+    /**
+     * Get the spreadsheetId from the given url
+     *
+     * @param spreadsheetUrl the url to get the spreadsheetId from
+     * @return the spreadsheetId
+     */
+    public static String getSpreadsheetIdFromUrl(String spreadsheetUrl) {
+        Pattern spreadsheetPattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([A-Za-z0-9-_]+)");
+        Matcher matcher = spreadsheetPattern.matcher(spreadsheetUrl);
+
+        String spreadsheetId = null;
+
+        if (matcher.find()) {
+            spreadsheetId = matcher.group(1);
+        }
+
+        return spreadsheetId;
     }
 
     /**

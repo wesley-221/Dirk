@@ -26,16 +26,24 @@ package com.dirk.commands.tournament;
 
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.TournamentHelper;
+import com.dirk.models.GoogleSpreadsheetAuthenticator;
 import com.dirk.models.command.Command;
 import com.dirk.models.command.CommandParameter;
+import com.dirk.models.tournament.Match;
 import com.dirk.models.tournament.Tournament;
+import com.dirk.models.tournament.embeddable.MatchId;
 import com.dirk.repositories.TournamentRepository;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -45,17 +53,16 @@ public class SynchronizeCommand extends Command {
     @Autowired
     public SynchronizeCommand(final TournamentRepository tournamentRepository) {
         this.commandName = "synchronize";
-        this.description = "Synchronize the spreadsheet so that the date is up to date.";
+        this.description = "Synchronize the spreadsheet with the database so that everything is up to date";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
 
-//        this.commandArguments.add(new CommandArgument("tournament name", "The name of the tournament.", CommandArgumentType.String));
-
         this.tournamentRepository = tournamentRepository;
     }
 
+    @Transactional
     @Override
     public void execute(MessageCreateEvent messageCreateEvent) {
         Tournament existingTournament = TournamentHelper.getRunningTournament(messageCreateEvent, tournamentRepository);
@@ -67,18 +74,111 @@ public class SynchronizeCommand extends Command {
             return;
         }
 
-        if(!TournamentHelper.isTournamentProperlySetup(existingTournament)) {
+        if (!TournamentHelper.isTournamentProperlySetup(existingTournament)) {
             messageCreateEvent
                     .getChannel()
                     .sendMessage(new EmbedBuilder()
-                    .setTimestampToNow()
-                    .setColor(Color.RED)
-                    .setAuthor("Tournament has not been finalized yet.")
-                    .setDescription("The tournament hasn't been setup properly yet. Check the table below to see what you still have to set: \n\n" + TournamentHelper.getTournamentStatus(existingTournament)));
+                            .setTimestampToNow()
+                            .setColor(Color.RED)
+                            .setAuthor("Tournament has not been finalized yet.")
+                            .setDescription("The tournament hasn't been setup properly yet. Check the table below to see what you still have to set: \n\n" + TournamentHelper.getTournamentStatus(existingTournament)));
             return;
         }
 
+        try {
+            String spreadsheetId = TournamentHelper.getSpreadsheetIdFromUrl(existingTournament.getSpreadsheet());
+            GoogleSpreadsheetAuthenticator authenticator = new GoogleSpreadsheetAuthenticator(spreadsheetId);
 
+            List<List<Object>> matchId = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getMatchIdRow());
+            List<List<Object>> date = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getDateRow());
+            List<List<Object>> time = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getTimeRow());
+            List<List<Object>> playerOne = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getPlayerOneRow());
+            List<List<Object>> playerTwo = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getPlayerTwoRow());
+            List<List<Object>> referee = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getRefereeRow());
+            List<List<Object>> streamer = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getStreamerRow());
+            List<List<Object>> commentator = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getCommentatorRow());
+
+            String dateFormat = existingTournament
+                    .getDateFormat()
+                    .replace("%d", "dd")
+                    .replace("%m", "MM")
+                    .replace("-", "/")
+                    + "/yyyy H:m";
+
+            for (int i = 0; i < matchId.size(); i++) {
+                String currentMatchId = (String) matchId.get(i).stream().findFirst().orElse(null);
+
+                // Reformat the string to database format
+                SimpleDateFormat sheetFormat = new SimpleDateFormat(dateFormat);
+
+                String currentDateString = (String) date.get(i).stream().findFirst().orElse(null);
+                currentDateString += "/" + Calendar.getInstance().get(Calendar.YEAR);
+                currentDateString += " " + time.get(i).stream().findFirst().orElse(null);
+
+                Date currentDate = sheetFormat.parse(currentDateString);
+                String currentPlayerOne = (String) playerOne.get(i).stream().findFirst().orElse(null);
+                String currentPlayerTwo = (String) playerTwo.get(i).stream().findFirst().orElse(null);
+                String currentReferee = referee.size() > i ? (String) referee.get(i).stream().findFirst().orElse(null) : null;
+                String currentStreamer = streamer.size() > i ? (String) streamer.get(i).stream().findFirst().orElse(null) : null;
+                String currentCommentator = commentator.size() > i ? (String) commentator.get(i).stream().findFirst().orElse(null) : null;
+
+                Match match = new Match();
+
+                // Create the primary key
+                MatchId matchIdEmbeddable = new MatchId();
+                matchIdEmbeddable.setMatchId(currentMatchId);
+                matchIdEmbeddable.setServerSnowflake(existingTournament.getServerSnowflake());
+
+                // Set the primary key & tournament
+                match.setMatchId(matchIdEmbeddable);
+                match.setTournament(existingTournament);
+
+                match.setDate(currentDate);
+                match.setPlayerOne(currentPlayerOne);
+                match.setPlayerTwo(currentPlayerTwo);
+                match.setReferee(currentReferee);
+                match.setStreamer(currentStreamer);
+                match.setCommentator(currentCommentator);
+
+                existingTournament.getAllMatches().add(match);
+            }
+
+            tournamentRepository.save(existingTournament);
+
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully synchronized all matches.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+        } catch (Exception ex) {
+            String errorMessage;
+
+            if (ex instanceof GoogleJsonResponseException) {
+                int statusCode = ((GoogleJsonResponseException) ex).getStatusCode();
+
+                switch (statusCode) {
+                    case 403:
+                        errorMessage = "DirkBot does not have permission to read/write the spreadsheet. \n\n" +
+                                "Share the spreadsheet with `" + TournamentHelper.DIRK_BOT_EMAIL + "` and give it editor permissions.";
+                        break;
+                    case 404:
+                        errorMessage = "Unable to find the spreadsheet. \n\n" +
+                                "Make sure the spreadsheet url looks like this: " +
+                                "`https://docs.google.com/spreadsheets/d/1yN-vwlhBEpdRJzSDRYM4IToLaXulLRrW_LYT-Hitd64/edit#gid=193799805`";
+                        break;
+                    default:
+                        errorMessage = "Unknown error, contact Wesley#2772 (GoogleJsonResponseException): " + ex.getMessage();
+                        break;
+                }
+
+                ex.printStackTrace();
+            } else {
+                errorMessage = "Unknown error, contact Wesley#2772 (Exception): " + ex.getMessage();
+                ex.printStackTrace();
+            }
+
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed(errorMessage, messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+        }
     }
 
     @Override
