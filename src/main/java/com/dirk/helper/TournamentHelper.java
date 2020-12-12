@@ -26,10 +26,16 @@ package com.dirk.helper;
 
 import com.dirk.models.tournament.Tournament;
 import com.dirk.repositories.TournamentRepository;
+import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
+import org.javacord.api.event.message.CertainMessageEvent;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,8 +53,15 @@ public class TournamentHelper {
      * @param tournamentRepository the TournamentRepository
      * @return Whether or not a tournament is running in the given server
      */
-    public static Tournament getRunningTournament(MessageCreateEvent messageCreateEvent, TournamentRepository tournamentRepository) {
-        Server server = messageCreateEvent.getServer().get();
+    public static Tournament getRunningTournament(Object messageCreateEvent, TournamentRepository tournamentRepository) {
+        Server server;
+
+        if (messageCreateEvent instanceof CertainMessageEvent) {
+            server = ((MessageCreateEvent) messageCreateEvent).getServer().get();
+        } else {
+            server = ((Message) messageCreateEvent).getServer().get();
+        }
+
         return tournamentRepository.getTournamentByServerSnowflake(server.getIdAsString());
     }
 
@@ -187,5 +200,81 @@ public class TournamentHelper {
                 (tournament.getDateRow() != null ? "`" + tournament.getDateRow() + "`" : "Not set") + "\n" +
                 "**Time row**: " +
                 (tournament.getTimeRow() != null ? "`" + tournament.getTimeRow() + "`" : "Not set") + "\n";
+    }
+
+    /**
+     * Get the range for a row with an offset
+     *
+     * @param row    the row to get the data from
+     * @param offset the offset for the new range
+     * @return the new range to get data from
+     */
+    public static String getRangeFromRow(String row, Integer offset) {
+        String rangeLetter = String.valueOf(row.charAt(0));
+        int rangeNumber = Character.getNumericValue(row.charAt(1));
+
+        return rangeLetter + (rangeNumber + offset);
+    }
+
+    /**
+     * Get the discord tag from all the given users
+     *
+     * @param server the server to check for the users
+     * @param list   the users to get the discord tag for
+     * @return all users with discord tags
+     */
+    public static String getUsersAsDiscordHighlights(Server server, List<Object> list) {
+        String finalString = "";
+        List<String> allUsersSplit;
+
+        if (list != null) {
+            allUsersSplit = Arrays.asList(((String) list.stream().findFirst().get()).split("/"));
+
+            if (allUsersSplit.size() > 1) {
+                List<String> tmpAllUsers = new ArrayList<>();
+
+                for (String user : allUsersSplit) {
+                    User serverUser = server.getMembersByName(user.trim()).stream().findFirst().orElse(null);
+
+                    if (serverUser != null) {
+                        tmpAllUsers.add(serverUser.getMentionTag());
+                    } else {
+                        tmpAllUsers.add("**" + user + "**");
+                    }
+                }
+
+                finalString = String.join(" / ", tmpAllUsers);
+            } else {
+                User serverUser = server.getMembersByName(allUsersSplit.get(0)).stream().findFirst().orElse(null);
+
+                if (serverUser != null) {
+                    finalString = serverUser.getMentionTag();
+                } else {
+                    finalString = "**" + allUsersSplit.get(0) + "**";
+                }
+            }
+        }
+
+        return finalString;
+    }
+
+    /**
+     * Get the discord tag from the given user
+     *
+     * @param server the server to check for the user
+     * @param user   the user to get the discord tag for
+     * @return the user with discord tag
+     */
+    public static String getUserAsDiscordHighlight(Server server, String user) {
+        User serverUser = server.getMembersByName(user).stream().findFirst().orElse(null);
+        String finalString;
+
+        if (serverUser != null) {
+            finalString = serverUser.getMentionTag();
+        } else {
+            finalString = "**" + user + "**";
+        }
+
+        return finalString;
     }
 }

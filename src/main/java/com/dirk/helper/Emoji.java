@@ -30,4 +30,5 @@ public class Emoji {
     public static String LUXEMBOURG_FLAG = "\uD83C\uDDF1\uD83C\uDDFA";
     public static String BEER = "\uD83C\uDF7A";
     public static String CAKE = "\uD83C\uDF82";
+    public static String THUMBS_UP = "\uD83D\uDC4D";
 }

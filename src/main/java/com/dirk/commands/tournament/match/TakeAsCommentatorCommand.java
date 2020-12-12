@@ -99,11 +99,8 @@ public class TakeAsCommentatorCommand extends Command {
                 if (matchId != null) {
                     // The entered match exists
                     if (matchId.equals(commandParamMatchId.getValue())) {
-                        String rangeLetter = String.valueOf(existingTournament.getCommentatorRow().charAt(0));
-                        int rangeNumber = Character.getNumericValue(existingTournament.getCommentatorRow().charAt(1));
-
                         // Get the listed commentators from the spreadsheet
-                        List<List<Object>> listedCommentatorsFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), rangeLetter + (rangeNumber + i));
+                        List<List<Object>> listedCommentatorsFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i));
                         String listedCommentators = null;
 
                         // Check if there are no commentators listed on the sheet
@@ -143,7 +140,7 @@ public class TakeAsCommentatorCommand extends Command {
                             newCommentators = new StringBuilder(messageCreateEvent.getMessageAuthor().getName());
                         }
 
-                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), rangeLetter + (rangeNumber + i), newCommentators.toString());
+                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i), newCommentators.toString());
 
                         messageCreateEvent
                                 .getChannel()

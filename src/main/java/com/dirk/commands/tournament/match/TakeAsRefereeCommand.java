@@ -99,11 +99,8 @@ public class TakeAsRefereeCommand extends Command {
                 if (matchId != null) {
                     // The entered match exists
                     if (matchId.equals(commandParamMatchId.getValue())) {
-                        String rangeLetter = String.valueOf(existingTournament.getRefereeRow().charAt(0));
-                        int rangeNumber = Character.getNumericValue(existingTournament.getRefereeRow().charAt(1));
-
                         // Get the listed referees from the spreadsheet
-                        List<List<Object>> listedRefereesFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), rangeLetter + (rangeNumber + i));
+                        List<List<Object>> listedRefereesFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i));
                         String listedReferees = null;
 
                         // Check if there are no referees listed on the sheet
@@ -143,7 +140,7 @@ public class TakeAsRefereeCommand extends Command {
                             newReferees = new StringBuilder(messageCreateEvent.getMessageAuthor().getName());
                         }
 
-                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), rangeLetter + (rangeNumber + i), newReferees.toString());
+                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i), newReferees.toString());
 
                         messageCreateEvent
                                 .getChannel()

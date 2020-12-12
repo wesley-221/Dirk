@@ -99,11 +99,8 @@ public class TakeAsStreamerCommand extends Command {
                 if (matchId != null) {
                     // The entered match exists
                     if (matchId.equals(commandParamMatchId.getValue())) {
-                        String rangeLetter = String.valueOf(existingTournament.getStreamerRow().charAt(0));
-                        int rangeNumber = Character.getNumericValue(existingTournament.getStreamerRow().charAt(1));
-
                         // Get the listed streamers from the spreadsheet
-                        List<List<Object>> listedStreamersFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), rangeLetter + (rangeNumber + i));
+                        List<List<Object>> listedStreamersFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i));
                         String listedStreamers = null;
 
                         // Check if there are no streamers listed on the sheet
@@ -143,7 +140,7 @@ public class TakeAsStreamerCommand extends Command {
                             newStreamers = new StringBuilder(messageCreateEvent.getMessageAuthor().getName());
                         }
 
-                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), rangeLetter + (rangeNumber + i), newStreamers.toString());
+                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i), newStreamers.toString());
 
                         messageCreateEvent
                                 .getChannel()
