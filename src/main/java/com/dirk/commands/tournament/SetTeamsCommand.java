@@ -80,6 +80,14 @@ public class SetTeamsCommand extends Command {
             return;
         }
 
+        // The user doesn't have the appropriate role to run this command
+        if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getAdminRoleSnowflake())) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("Unable to set the teams. You have to be the Server Owner or an Admin in order to run this.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         existingTournament.setIsTeamTournament(Boolean.valueOf(isTeamTournament));
         tournamentRepository.save(existingTournament);
 

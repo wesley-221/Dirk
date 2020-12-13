@@ -25,6 +25,7 @@
 package com.dirk.commands.tournament;
 
 import com.dirk.helper.EmbedHelper;
+import com.dirk.helper.TournamentHelper;
 import com.dirk.models.command.Command;
 import com.dirk.models.command.CommandArgument;
 import com.dirk.models.command.CommandArgumentType;
@@ -63,6 +64,14 @@ public class CreateTournamentCommand extends Command {
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
         String serverSnowflake = messageCreateEvent.getServer().get().getIdAsString();
         String tournamentName = (String) commandParams.stream().findFirst().get().getValue();
+
+        // The user doesn't have the appropriate role to run this command
+        if (!TournamentHelper.isServerOwner(messageCreateEvent)) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("Unable to create a tournament. You have to be the Server Owner in order to run this.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
 
         Tournament existingTournament = tournamentRepository.getTournamentByServerSnowflake(serverSnowflake);
 

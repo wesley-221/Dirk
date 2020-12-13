@@ -74,6 +74,15 @@ public class TakeAsStreamerCommand extends Command {
             return;
         }
 
+        // The user doesn't have the appropriate role to run this command
+        if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getStreamerRoleSnowflake())) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("You don't have the Streamer role. \n" +
+                            "**Ping one of the Tournament hosts in order to get this role.**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         CommandParameter commandParamMatchId = commandParams.stream().findFirst().orElse(null);
 
         // Prevent empty input

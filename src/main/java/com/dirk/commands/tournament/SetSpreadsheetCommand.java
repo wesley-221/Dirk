@@ -73,6 +73,14 @@ public class SetSpreadsheetCommand extends Command {
             return;
         }
 
+        // The user doesn't have the appropriate role to run this command
+        if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getAdminRoleSnowflake())) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("Unable to set the spreadsheet. You have to be the Server Owner or an Admin in order to run this.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         if (!TournamentHelper.validateSpreadsheetUrl(spreadsheetLink)) {
             messageCreateEvent
                     .getChannel()

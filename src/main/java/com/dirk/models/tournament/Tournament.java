@@ -49,7 +49,7 @@ public class Tournament {
     private String adminRoleSnowflake;
     private String refereeRoleSnowflake;
     private String commentatorRoleSnowflake;
-    private String streamRoleSnowflake;
+    private String streamerRoleSnowflake;
     private String teamCaptainRoleSnowflake;
     private String playerRoleSnowflake;
 

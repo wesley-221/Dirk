@@ -76,6 +76,14 @@ public class AssignAdminRoleCommand extends Command {
             return;
         }
 
+        // The user doesn't have the appropriate role to run this command
+        if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getAdminRoleSnowflake())) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("Unable to assign the Admin role. You have to be the Server Owner in order to run this.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         Role role = TournamentHelper.getRoleByString(enteredRole, server);
 
         // Check if the role exists

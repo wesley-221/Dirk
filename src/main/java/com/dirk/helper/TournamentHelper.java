@@ -297,4 +297,50 @@ public class TournamentHelper {
 
         return finalString;
     }
+
+    /**
+     * Check if the user has the given role
+     *
+     * @param messageCreateEvent the event given from the executed command
+     * @param roleSnowflake      the snowflake of the role to check for
+     * @return whether or not the user has the given role
+     */
+    public static Boolean hasRoleOrIsServerOwner(MessageCreateEvent messageCreateEvent, String roleSnowflake) {
+        Server server = messageCreateEvent.getServer().orElse(null);
+
+        if (server != null) {
+            User messageUser = messageCreateEvent.getMessageAuthor().asUser().orElse(null);
+
+            if (messageUser != null) {
+                User serverUser = server.getMemberById(messageUser.getId()).orElse(null);
+
+                if (serverUser != null) {
+                    Role role = server.getRoleById(roleSnowflake).orElse(null);
+
+                    if (role != null || server.isOwner(serverUser)) {
+                        return serverUser.getRoles(server).contains(role);
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the user is a server owner
+     *
+     * @param messageCreateEvent the event given from the executed command
+     * @return whether or not the user is the server owner
+     */
+    public static Boolean isServerOwner(MessageCreateEvent messageCreateEvent) {
+        Server server = messageCreateEvent.getServer().orElse(null);
+        User user = messageCreateEvent.getMessageAuthor().asUser().orElse(null);
+
+        if (server != null && user != null) {
+            return server.isOwner(user);
+        }
+
+        return false;
+    }
 }

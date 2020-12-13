@@ -41,13 +41,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class AssignStreamRoleCommand extends Command {
+public class AssignStreamerRoleCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public AssignStreamRoleCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "assignstreamrole";
-        this.description = "Assign what the stream role will be. This role will be able to configure the tournament.";
+    public AssignStreamerRoleCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "assignstreamerrole";
+        this.description = "Assign what the streamer role will be. This role will be able to configure the tournament.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
@@ -76,6 +76,14 @@ public class AssignStreamRoleCommand extends Command {
             return;
         }
 
+        // The user doesn't have the appropriate role to run this command
+        if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getAdminRoleSnowflake())) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("Unable to assign the Streamer role. You have to be the Server Owner or an Admin in order to run this.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         Role role = TournamentHelper.getRoleByString(enteredRole, server);
 
         // Check if the role exists
@@ -84,12 +92,12 @@ public class AssignStreamRoleCommand extends Command {
                     .getChannel()
                     .sendMessage(EmbedHelper.genericErrorEmbed("The given role was not found.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } else {
-            existingTournament.setStreamRoleSnowflake(role.getIdAsString());
+            existingTournament.setStreamerRoleSnowflake(role.getIdAsString());
             tournamentRepository.save(existingTournament);
 
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericSuccessEmbed("Set the stream role to " + role.getMentionTag() + ".", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    .sendMessage(EmbedHelper.genericSuccessEmbed("Set the streamer role to " + role.getMentionTag() + ".", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         }
     }
 }
