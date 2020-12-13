@@ -318,7 +318,7 @@ public class TournamentHelper {
                     Role role = server.getRoleById(roleSnowflake).orElse(null);
 
                     if (role != null || server.isOwner(serverUser)) {
-                        return serverUser.getRoles(server).contains(role);
+                        return serverUser.getRoles(server).contains(role) || server.isOwner(serverUser);
                     }
                 }
             }
