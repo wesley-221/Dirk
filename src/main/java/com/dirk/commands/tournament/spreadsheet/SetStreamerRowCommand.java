@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.dirk.commands.tournament.spreadsheet_rows;
+package com.dirk.commands.tournament.spreadsheet;
 
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.TournamentHelper;
@@ -39,19 +39,19 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class SetPlayerTwoRowCommand extends Command {
+public class SetStreamerRowCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public SetPlayerTwoRowCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "setplayertworow";
-        this.description = "Set the row where player 2/team 2 are listed on the schedule.";
+    public SetStreamerRowCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "setstreamerrow";
+        this.description = "Set the row where all the streamers are listed on the schedule.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
 
-        this.commandArguments.add(new CommandArgument("player 2/team 2 row", "Enter the row where player 2/team 2 are listed on the schedule. Example: `F3:F`", CommandArgumentType.String));
+        this.commandArguments.add(new CommandArgument("streamer row", "Enter the row where all the streamers are listed on the schedule. Example: `H3:H`", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
@@ -62,12 +62,12 @@ public class SetPlayerTwoRowCommand extends Command {
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
-        String playerTwoRow = (String) commandParams.stream().findFirst().get().getValue();
+        String streamerRow = (String) commandParams.stream().findFirst().get().getValue();
 
-        if (!TournamentHelper.validateSpreadsheetRowInput(playerTwoRow)) {
+        if (!TournamentHelper.validateSpreadsheetRowInput(streamerRow)) {
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `player 2/team 2 row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `streamer row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
@@ -80,11 +80,11 @@ public class SetPlayerTwoRowCommand extends Command {
             return;
         }
 
-        existingTournament.setPlayerTwoRow(playerTwoRow);
+        existingTournament.setStreamerRow(streamerRow);
         tournamentRepository.save(existingTournament);
 
         messageCreateEvent
                 .getChannel()
-                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the player/team 2 row to `" + playerTwoRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the streamer row to `" + streamerRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }

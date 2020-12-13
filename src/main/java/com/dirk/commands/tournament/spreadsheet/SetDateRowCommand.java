@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.dirk.commands.tournament.spreadsheet_rows;
+package com.dirk.commands.tournament.spreadsheet;
 
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.TournamentHelper;
@@ -39,19 +39,19 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class SetTimeRowCommand extends Command {
+public class SetDateRowCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public SetTimeRowCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "settimerow";
+    public SetDateRowCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "setdaterow";
         this.description = "Set the row where all the dates are listed on the schedule.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
 
-        this.commandArguments.add(new CommandArgument("time row", "Enter the row where all the times are on the schedule. Example: `D3:D`", CommandArgumentType.String));
+        this.commandArguments.add(new CommandArgument("date row", "Enter the row where all the dates are on the schedule. Example: `C3:C`", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
@@ -62,12 +62,12 @@ public class SetTimeRowCommand extends Command {
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
-        String timeRow = (String) commandParams.stream().findFirst().get().getValue();
+        String dateRow = (String) commandParams.stream().findFirst().get().getValue();
 
-        if (!TournamentHelper.validateSpreadsheetRowInput(timeRow)) {
+        if (!TournamentHelper.validateSpreadsheetRowInput(dateRow)) {
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `time row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `date row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
@@ -80,11 +80,11 @@ public class SetTimeRowCommand extends Command {
             return;
         }
 
-        existingTournament.setTimeRow(timeRow);
+        existingTournament.setDateRow(dateRow);
         tournamentRepository.save(existingTournament);
 
         messageCreateEvent
                 .getChannel()
-                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the time row to `" + timeRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the date row to `" + dateRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }

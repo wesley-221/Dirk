@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.dirk.commands.tournament.spreadsheet_rows;
+package com.dirk.commands.tournament.spreadsheet;
 
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.TournamentHelper;
@@ -39,19 +39,19 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class SetRefereeRowCommand extends Command {
+public class SetTimeRowCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public SetRefereeRowCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "setrefereerow";
-        this.description = "Set the row where all the referees are listed on the schedule.";
+    public SetTimeRowCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "settimerow";
+        this.description = "Set the row where all the dates are listed on the schedule.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
 
-        this.commandArguments.add(new CommandArgument("referee row", "Enter the row where all the referees are listed on the schedule. Example: `G3:G`", CommandArgumentType.String));
+        this.commandArguments.add(new CommandArgument("time row", "Enter the row where all the times are on the schedule. Example: `D3:D`", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
@@ -62,12 +62,12 @@ public class SetRefereeRowCommand extends Command {
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
-        String refereeRow = (String) commandParams.stream().findFirst().get().getValue();
+        String timeRow = (String) commandParams.stream().findFirst().get().getValue();
 
-        if (!TournamentHelper.validateSpreadsheetRowInput(refereeRow)) {
+        if (!TournamentHelper.validateSpreadsheetRowInput(timeRow)) {
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `referee row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `time row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
@@ -80,11 +80,11 @@ public class SetRefereeRowCommand extends Command {
             return;
         }
 
-        existingTournament.setRefereeRow(refereeRow);
+        existingTournament.setTimeRow(timeRow);
         tournamentRepository.save(existingTournament);
 
         messageCreateEvent
                 .getChannel()
-                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the referee row to `" + refereeRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the time row to `" + timeRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }

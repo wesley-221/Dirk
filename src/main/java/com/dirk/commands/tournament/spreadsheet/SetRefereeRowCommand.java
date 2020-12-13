@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.dirk.commands.tournament.spreadsheet_rows;
+package com.dirk.commands.tournament.spreadsheet;
 
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.TournamentHelper;
@@ -39,19 +39,19 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class SetMatchIdRowCommand extends Command {
+public class SetRefereeRowCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public SetMatchIdRowCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "setmatchidrow";
-        this.description = "Set the row where all the match ids are listed on the schedule.";
+    public SetRefereeRowCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "setrefereerow";
+        this.description = "Set the row where all the referees are listed on the schedule.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
 
-        this.commandArguments.add(new CommandArgument("match id row", "Enter the row where all the match ids are on the schedule. Example: `B3:B`", CommandArgumentType.String));
+        this.commandArguments.add(new CommandArgument("referee row", "Enter the row where all the referees are listed on the schedule. Example: `G3:G`", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
@@ -62,12 +62,12 @@ public class SetMatchIdRowCommand extends Command {
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
-        String matchIdRow = (String) commandParams.stream().findFirst().get().getValue();
+        String refereeRow = (String) commandParams.stream().findFirst().get().getValue();
 
-        if (!TournamentHelper.validateSpreadsheetRowInput(matchIdRow)) {
+        if (!TournamentHelper.validateSpreadsheetRowInput(refereeRow)) {
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `match id row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `referee row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
@@ -80,11 +80,11 @@ public class SetMatchIdRowCommand extends Command {
             return;
         }
 
-        existingTournament.setMatchIdRow(matchIdRow);
+        existingTournament.setRefereeRow(refereeRow);
         tournamentRepository.save(existingTournament);
 
         messageCreateEvent
                 .getChannel()
-                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the match id row to `" + matchIdRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the referee row to `" + refereeRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }

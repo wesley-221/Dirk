@@ -22,40 +22,55 @@
  * SOFTWARE.
  */
 
-package com.dirk.commands.tournament.spreadsheet_rows;
+package com.dirk.commands.tournament.spreadsheet;
 
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.TournamentHelper;
 import com.dirk.models.command.Command;
+import com.dirk.models.command.CommandArgument;
+import com.dirk.models.command.CommandArgumentType;
 import com.dirk.models.command.CommandParameter;
 import com.dirk.models.tournament.Tournament;
 import com.dirk.repositories.TournamentRepository;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
 import java.util.List;
 
 @Component
-public class TournamentStatusCommand extends Command {
+public class SetPlayerOneRowCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public TournamentStatusCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "tournamentstatus";
-        this.description = "Get the status of how the tournament is setup.";
+    public SetPlayerOneRowCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "setplayeronerow";
+        this.description = "Set the row where player 1/team 1 are listed on the schedule.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
+
+        this.commandArguments.add(new CommandArgument("player 1/team 1 row", "Enter the row where player 1/team 1 are listed on the schedule. Example: `E3:E`", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
 
     @Override
     public void execute(MessageCreateEvent messageCreateEvent) {
+    }
+
+    @Override
+    public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
+        String playerOneRow = (String) commandParams.stream().findFirst().get().getValue();
+
+        if (!TournamentHelper.validateSpreadsheetRowInput(playerOneRow)) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed(this.getCommandHelpFormat("Invalid `player 1/team 1 row` argument given.\n\n"), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         Tournament existingTournament = TournamentHelper.getRunningTournament(messageCreateEvent, tournamentRepository);
 
         if (existingTournament == null) {
@@ -65,16 +80,11 @@ public class TournamentStatusCommand extends Command {
             return;
         }
 
+        existingTournament.setPlayerOneRow(playerOneRow);
+        tournamentRepository.save(existingTournament);
+
         messageCreateEvent
                 .getChannel()
-                .sendMessage(new EmbedBuilder()
-                        .setTimestampToNow()
-                        .setColor(Color.GREEN)
-                        .setAuthor("Tournament status")
-                        .setDescription(TournamentHelper.getTournamentStatus(existingTournament)));
-    }
-
-    @Override
-    public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
+                .sendMessage(EmbedHelper.genericSuccessEmbed("Set the player/team 1 row to `" + playerOneRow + "`.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
     }
 }
