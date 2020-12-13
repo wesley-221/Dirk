@@ -30,8 +30,10 @@ import com.dirk.models.GoogleSpreadsheetAuthenticator;
 import com.dirk.models.command.Command;
 import com.dirk.models.command.CommandParameter;
 import com.dirk.models.tournament.Match;
+import com.dirk.models.tournament.Team;
 import com.dirk.models.tournament.Tournament;
 import com.dirk.models.tournament.embeddable.MatchId;
+import com.dirk.models.tournament.embeddable.TeamId;
 import com.dirk.repositories.TournamentRepository;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -96,6 +98,7 @@ public class SynchronizeCommand extends Command {
             List<List<Object>> referee = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getRefereeRow());
             List<List<Object>> streamer = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getStreamerRow());
             List<List<Object>> commentator = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getCommentatorRow());
+            List<List<Object>> teams = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getTeamsRow());
 
             String dateFormat = existingTournament
                     .getDateFormat()
@@ -142,11 +145,28 @@ public class SynchronizeCommand extends Command {
                 existingTournament.getAllMatches().add(match);
             }
 
+            for (List<Object> teamObject : teams) {
+                String teamName = teamObject.get(0).toString();
+                String teamCaptain = teamObject.get(1).toString();
+
+                Team team = new Team();
+
+                TeamId teamIdEmbeddable = new TeamId();
+                teamIdEmbeddable.setName(teamName);
+                teamIdEmbeddable.setServerSnowflake(existingTournament.getServerSnowflake());
+
+                team.setTeamId(teamIdEmbeddable);
+                team.setTournament(existingTournament);
+                team.setCaptain(teamCaptain);
+
+                existingTournament.getAllTeams().add(team);
+            }
+
             tournamentRepository.save(existingTournament);
 
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully synchronized all matches.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                    .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully synchronized all matches and teams.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         } catch (Exception ex) {
             messageCreateEvent
                     .getChannel()

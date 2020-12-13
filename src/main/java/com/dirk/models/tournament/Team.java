@@ -22,48 +22,30 @@
  * SOFTWARE.
  */
 
-package com.dirk.models.tournament.embeddable;
+package com.dirk.models.tournament;
 
-import javax.persistence.Embeddable;
-import java.io.Serializable;
-import java.util.Objects;
+import com.dirk.models.tournament.embeddable.TeamId;
+import lombok.Getter;
+import lombok.Setter;
 
-@Embeddable
-public class MatchId implements Serializable {
-    private String serverSnowflake;
-    private String matchId;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 
-    public MatchId() {
-    }
+@Getter
+@Setter
+@Entity(name = "tournament_team")
+public class Team {
+    @EmbeddedId
+    private TeamId teamId;
 
-    public String getServerSnowflake() {
-        return serverSnowflake;
-    }
+    @MapsId("serverSnowflake")
+    @ManyToOne
+    private Tournament tournament;
 
-    public void setServerSnowflake(String serverSnowflake) {
-        this.serverSnowflake = serverSnowflake;
-    }
+    private String captain;
 
-    public String getMatchId() {
-        return matchId;
-    }
-
-    public void setMatchId(String matchId) {
-        this.matchId = matchId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        MatchId that = (MatchId) o;
-
-        return this.serverSnowflake.equals(that.serverSnowflake) && this.matchId.equals(that.matchId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.serverSnowflake, this.matchId);
+    public Team() {
     }
 }

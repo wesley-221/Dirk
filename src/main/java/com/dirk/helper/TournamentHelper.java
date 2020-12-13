@@ -103,6 +103,26 @@ public class TournamentHelper {
     }
 
     /**
+     * Validate the team row and check if there's actually two rows
+     *
+     * @param row the rows to check
+     * @return result of whether or not the rows are correct
+     */
+    public static Boolean validateSpreadsheetTeamRow(String row) {
+        Pattern rowPattern = Pattern.compile("([A-Za-z0-9]{1,3}):([A-Za-z0-9]{1,3})");
+        Matcher matcher = rowPattern.matcher(row);
+
+        if (matcher.find()) {
+            String firstRow = String.valueOf(matcher.group(1).charAt(0));
+            String lastRow = matcher.group(2);
+
+            return !firstRow.equals(lastRow);
+        }
+
+        return false;
+    }
+
+    /**
      * Validate if the input to see if it is a correct date format
      *
      * @param dateFormat the format of the date

@@ -53,6 +53,8 @@ public class Tournament {
     private String teamCaptainRoleSnowflake;
     private String playerRoleSnowflake;
 
+    private String teamsRow;
+
     private String refereeRow;
     private String streamerRow;
     private String commentatorRow;
@@ -68,6 +70,9 @@ public class Tournament {
 
     @OneToMany(mappedBy = "tournament", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Match> allMatches = new ArrayList<>();
+
+    @OneToMany(mappedBy = "tournament", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Team> allTeams = new ArrayList<>();
 
     public Tournament() {
         this.isTeamTournament = false;
@@ -87,5 +92,13 @@ public class Tournament {
         }
 
         this.allMatches = allMatches;
+    }
+
+    public void setAllTeams(List<Team> allTeams) {
+        for (Team team : allTeams) {
+            team.setTournament(this);
+        }
+
+        this.allTeams = allTeams;
     }
 }

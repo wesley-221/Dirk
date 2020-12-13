@@ -29,11 +29,11 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class MatchId implements Serializable {
+public class TeamId implements Serializable {
     private String serverSnowflake;
-    private String matchId;
+    private String name;
 
-    public MatchId() {
+    public TeamId() {
     }
 
     public String getServerSnowflake() {
@@ -44,12 +44,12 @@ public class MatchId implements Serializable {
         this.serverSnowflake = serverSnowflake;
     }
 
-    public String getMatchId() {
-        return matchId;
+    public String getName() {
+        return name;
     }
 
-    public void setMatchId(String matchId) {
-        this.matchId = matchId;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -57,13 +57,13 @@ public class MatchId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MatchId that = (MatchId) o;
+        TeamId that = (TeamId) o;
 
-        return this.serverSnowflake.equals(that.serverSnowflake) && this.matchId.equals(that.matchId);
+        return this.serverSnowflake.equals(that.serverSnowflake) && this.name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.serverSnowflake, this.matchId);
+        return Objects.hash(this.serverSnowflake, this.name);
     }
 }
