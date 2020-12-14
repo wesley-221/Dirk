@@ -153,12 +153,28 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                                     authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), dateRow, sheetDateSDF.format(formattedDate));
                                                     authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), timeRow, timeSDF.format(formattedDate));
 
+                                                    String rescheduledMatch = "**Match " + matchId + " (" + playerOneDiscordTag + " vs " + playerTwoDiscordTag + ")** has been rescheduled from **" + originalDate + " UTC+0** to **" + proposedDate + " UTC+0**.";
+                                                    String staffOnMatch = "**__Referee:__** " + allRefereesString + "\n" +
+                                                            "**__Streamer:__** " + allStreamersString + "\n" +
+                                                            "**__Commentator:__** " + allCommentatorsString;
+
                                                     msg
                                                             .getChannel()
-                                                            .sendMessage("**Match " + matchId + " (" + playerOneDiscordTag + " vs " + playerTwoDiscordTag + ")** has been rescheduled from **" + originalDate + " UTC+0** to **" + proposedDate + " UTC+0**. \n\n" +
-                                                                    "**__Referee:__** " + allRefereesString + "\n" +
-                                                                    "**__Streamer:__** " + allStreamersString + "\n" +
-                                                                    "**__Commentator:__** " + allCommentatorsString);
+                                                            .sendMessage(rescheduledMatch);
+
+                                                    CompletableFuture<Message> sentMessage = msg
+                                                            .getServer().flatMap(msgServer -> msgServer.getTextChannelById(existingTournament.getRescheduleNotifierChannelSnowflake())).get()
+                                                            .sendMessage(rescheduledMatch + "\n\n" + staffOnMatch +
+                                                                    "\n\nIf you are unable to participate for this match, click on the emojis to remove yourself from the match.\n\n" +
+                                                                    Emoji.CHECKERED_FLAG + ": referee \n" +
+                                                                    Emoji.CAMERA + ": streamer \n" +
+                                                                    Emoji.MICROPHONE + ": commentator");
+
+                                                    sentMessage.whenComplete((newMsg, ignore) -> {
+                                                        newMsg.addReaction(Emoji.CHECKERED_FLAG);
+                                                        newMsg.addReaction(Emoji.CAMERA);
+                                                        newMsg.addReaction(Emoji.MICROPHONE);
+                                                    });
 
                                                     return;
                                                 }
@@ -172,7 +188,12 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                 }
                             }
                         }
-                    }
+                    } /* TODO: remove yourself from a match when clicking on these emojis
+                    else if (reaction.getEmoji().equalsEmoji(Emoji.CHECKERED_FLAG) ||
+                            reaction.getEmoji().equalsEmoji(Emoji.CAMERA) ||
+                            reaction.getEmoji().equalsEmoji(Emoji.MICROPHONE)) {
+
+                    }*/
                 }
             });
         }

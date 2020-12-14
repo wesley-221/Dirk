@@ -31,4 +31,7 @@ public class Emoji {
     public static String BEER = "\uD83C\uDF7A";
     public static String CAKE = "\uD83C\uDF82";
     public static String THUMBS_UP = "\uD83D\uDC4D";
+    public static String CHECKERED_FLAG = "\uD83C\uDFC1";
+    public static String CAMERA = "\uD83C\uDFA5";
+    public static String MICROPHONE = "\uD83C\uDF99";
 }
