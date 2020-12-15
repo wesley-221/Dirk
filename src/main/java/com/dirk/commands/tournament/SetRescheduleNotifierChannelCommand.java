@@ -46,7 +46,7 @@ public class SetRescheduleNotifierChannelCommand extends Command {
     @Autowired
     public SetRescheduleNotifierChannelCommand(TournamentRepository tournamentRepository) {
         this.commandName = "setreschedulenotifierchannel";
-        this.description = "Set the channel where all the reschedule notifications go to.";
+        this.description = "Set the channel where all the reschedule notifications go to. This will highlight all the users that are staffing this match.";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
