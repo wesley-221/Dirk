@@ -109,13 +109,7 @@ public class TakeAsRefereeCommand extends Command {
                     // The entered match exists
                     if (matchId.equals(commandParamMatchId.getValue())) {
                         // Get the listed referees from the spreadsheet
-                        List<List<Object>> listedRefereesFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i));
-                        String listedReferees = null;
-
-                        // Check if there are no referees listed on the sheet
-                        if (listedRefereesFromSheet != null) {
-                            listedReferees = (String) listedRefereesFromSheet.get(0).stream().findFirst().orElse(null);
-                        }
+                        String listedReferees = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i));
 
                         StringBuilder newReferees = new StringBuilder();
 

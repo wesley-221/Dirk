@@ -109,13 +109,7 @@ public class TakeAsStreamerCommand extends Command {
                     // The entered match exists
                     if (matchId.equals(commandParamMatchId.getValue())) {
                         // Get the listed streamers from the spreadsheet
-                        List<List<Object>> listedStreamersFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i));
-                        String listedStreamers = null;
-
-                        // Check if there are no streamers listed on the sheet
-                        if (listedStreamersFromSheet != null) {
-                            listedStreamers = (String) listedStreamersFromSheet.get(0).stream().findFirst().orElse(null);
-                        }
+                        String listedStreamers = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i));
 
                         StringBuilder newStreamers = new StringBuilder();
 

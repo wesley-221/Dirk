@@ -109,13 +109,7 @@ public class TakeAsCommentatorCommand extends Command {
                     // The entered match exists
                     if (matchId.equals(commandParamMatchId.getValue())) {
                         // Get the listed commentators from the spreadsheet
-                        List<List<Object>> listedCommentatorsFromSheet = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i));
-                        String listedCommentators = null;
-
-                        // Check if there are no commentators listed on the sheet
-                        if (listedCommentatorsFromSheet != null) {
-                            listedCommentators = (String) listedCommentatorsFromSheet.get(0).stream().findFirst().orElse(null);
-                        }
+                        String listedCommentators = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i));
 
                         StringBuilder newCommentators = new StringBuilder();
 

@@ -24,6 +24,7 @@
 
 package com.dirk.helper;
 
+import com.dirk.models.GoogleSpreadsheetAuthenticator;
 import com.dirk.models.tournament.Tournament;
 import com.dirk.repositories.TournamentRepository;
 import org.javacord.api.entity.message.Message;
@@ -33,6 +34,7 @@ import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.CertainMessageEvent;
 import org.javacord.api.event.message.MessageCreateEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -342,5 +344,26 @@ public class TournamentHelper {
         }
 
         return false;
+    }
+
+    /**
+     * Get data from the given spreadsheet as a string
+     *
+     * @param authenticator the spreadsheet authenticator
+     * @param scheduleTab   the tab where the schedules are
+     * @param rowRange      the range of what to get
+     * @return the data as a string
+     * @throws IOException the error when something fails
+     */
+    public static String getSheetRowAsString(GoogleSpreadsheetAuthenticator authenticator, String scheduleTab, String rowRange) throws IOException {
+        List<List<Object>> listedRowsFromSheetObject = authenticator.getDataFromRange(scheduleTab, rowRange);
+        String listedRowFromSheet = null;
+
+        // Check if there are no commentators listed on the sheet
+        if (listedRowsFromSheetObject != null) {
+            listedRowFromSheet = (String) listedRowsFromSheetObject.get(0).stream().findFirst().orElse(null);
+        }
+
+        return listedRowFromSheet;
     }
 }
