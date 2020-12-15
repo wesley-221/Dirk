@@ -141,6 +141,9 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
 
                                             if (currentMatchId != null) {
                                                 if (currentMatchId.equals(matchId)) {
+                                                    List<List<Object>> spreadsheetDate = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getDateRow(), i));
+                                                    List<List<Object>> spreadsheetTime = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getTimeRow(), i));
+
                                                     List<List<Object>> spreadsheetPlayerOne = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getPlayerOneRow(), i));
                                                     List<List<Object>> spreadsheetPlayerTwo = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getPlayerTwoRow(), i));
                                                     List<List<Object>> spreadsheetReferee = authenticator.getDataFromRange(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i));
@@ -168,10 +171,21 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                                             .replace("%m", "MM");
 
                                                     SimpleDateFormat sheetDateSDF = new SimpleDateFormat(sheetDateFormat);
-                                                    SimpleDateFormat originalDateSDF = new SimpleDateFormat("d MMMM H:mm");
                                                     SimpleDateFormat timeSDF = new SimpleDateFormat("H:mm");
+                                                    SimpleDateFormat originalDateSDF = new SimpleDateFormat("d MMMM H:mm");
 
+                                                    SimpleDateFormat sheetDateTimeSDF = new SimpleDateFormat(sheetDateFormat + " H:mm");
                                                     Date formattedDate = originalDateSDF.parse(proposedDate);
+
+                                                    String dateFromSpreadsheet = (String) spreadsheetDate.get(0).stream().findFirst().orElse(null);
+                                                    String timeFromSpreadsheet = (String) spreadsheetTime.get(0).stream().findFirst().orElse(null);
+
+                                                    Date dateTimeFromSpreadsheet = sheetDateTimeSDF.parse(dateFromSpreadsheet + " " + timeFromSpreadsheet);
+
+                                                    // Ignore match reschedule if the new time is the same as the old time
+                                                    if (formattedDate.equals(dateTimeFromSpreadsheet)) {
+                                                        return;
+                                                    }
 
                                                     authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), dateRow, sheetDateSDF.format(formattedDate));
                                                     authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), timeRow, timeSDF.format(formattedDate));
