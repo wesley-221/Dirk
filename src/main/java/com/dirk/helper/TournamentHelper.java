@@ -301,6 +301,26 @@ public class TournamentHelper {
     }
 
     /**
+     * Get the discord tag from the given role
+     *
+     * @param server   the server toc heck for the user
+     * @param roleName the role to get the discord tag for
+     * @return the role with the discord tag
+     */
+    public static String getTeamAsDiscordHighlight(Server server, String roleName) {
+        Role serverRole = server.getRolesByName(roleName).stream().findFirst().orElse(null);
+        String finalString;
+
+        if (serverRole != null) {
+            finalString = serverRole.getMentionTag();
+        } else {
+            finalString = "**" + roleName + "**";
+        }
+
+        return finalString;
+    }
+
+    /**
      * Check if the user has the given role
      *
      * @param messageCreateEvent the event given from the executed command

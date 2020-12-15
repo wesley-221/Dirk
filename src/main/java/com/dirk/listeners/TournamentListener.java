@@ -46,6 +46,8 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -154,8 +156,16 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                                     List<Object> allStreamersList = spreadsheetStreamer != null ? spreadsheetStreamer.get(0) : null;
                                                     List<Object> allCommentatorsList = spreadsheetCommentator != null ? spreadsheetCommentator.get(0) : null;
 
-                                                    String playerOneDiscordTag = TournamentHelper.getUserAsDiscordHighlight(server, (String) spreadsheetPlayerOne.get(0).stream().findFirst().get());
-                                                    String playerTwoDiscordTag = TournamentHelper.getUserAsDiscordHighlight(server, (String) spreadsheetPlayerTwo.get(0).stream().findFirst().get());
+                                                    String playerOneDiscordTag;
+                                                    String playerTwoDiscordTag;
+
+                                                    if (existingTournament.getIsTeamTournament()) {
+                                                        playerOneDiscordTag = TournamentHelper.getTeamAsDiscordHighlight(server, (String) spreadsheetPlayerOne.get(0).stream().findFirst().get());
+                                                        playerTwoDiscordTag = TournamentHelper.getTeamAsDiscordHighlight(server, (String) spreadsheetPlayerTwo.get(0).stream().findFirst().get());
+                                                    } else {
+                                                        playerOneDiscordTag = TournamentHelper.getUserAsDiscordHighlight(server, (String) spreadsheetPlayerOne.get(0).stream().findFirst().get());
+                                                        playerTwoDiscordTag = TournamentHelper.getUserAsDiscordHighlight(server, (String) spreadsheetPlayerTwo.get(0).stream().findFirst().get());
+                                                    }
 
                                                     String allRefereesString = TournamentHelper.getUsersAsDiscordHighlights(server, allRefereesList);
                                                     String allStreamersString = TournamentHelper.getUsersAsDiscordHighlights(server, allStreamersList);
@@ -225,14 +235,123 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                         .sendMessage(EmbedHelper.genericErrorEmbed(GoogleSpreadsheetAuthenticator.parseException(ex), msg.getAuthor().getDiscriminatedName()));
                             }
                         }
-                    }
-
-                    /* TODO: remove yourself from a match when clicking on these emojis
-                    else if (reaction.getEmoji().equalsEmoji(Emoji.CHECKERED_FLAG) ||
+                    } else if (reaction.getEmoji().equalsEmoji(Emoji.CHECKERED_FLAG) ||
                             reaction.getEmoji().equalsEmoji(Emoji.CAMERA) ||
                             reaction.getEmoji().equalsEmoji(Emoji.MICROPHONE)) {
+                        Pattern pattern = Pattern.compile("\\*\\*Match ([0-9A-Za-z]+) \\(\\*\\*.+\\*\\* vs \\*\\*.+\\*\\*\\)\\*\\* has been rescheduled from \\*\\*.+\\*\\* to \\*\\*.+\\*\\*\\.\\s+" +
+                                ".+\\s" +
+                                ".+\\s" +
+                                ".+\\s+" +
+                                "If you are unable to participate for this match, click on the emojis to remove yourself from the match\\.\\s+" +
+                                "\uD83C\uDFC1: referee \\s" +
+                                "\uD83C\uDFA5: streamer \\s" +
+                                "\uD83C\uDF99: commentator", Pattern.DOTALL);
+                        Matcher matcher = pattern.matcher(msg.getContent());
 
-                    }*/
+                        if (matcher.find()) {
+                            try {
+                                String matchId = matcher.group(1);
+                                Tournament existingTournament = TournamentHelper.getRunningTournament(msg, tournamentRepository);
+                                String spreadsheetId = TournamentHelper.getSpreadsheetIdFromUrl(existingTournament.getSpreadsheet());
+                                GoogleSpreadsheetAuthenticator authenticator = new GoogleSpreadsheetAuthenticator(spreadsheetId);
+
+                                List<List<Object>> allMatches = authenticator.getDataFromRange(existingTournament.getScheduleTab(), existingTournament.getMatchIdRow());
+
+                                for (int i = 0; i < allMatches.size(); i++) {
+                                    String currentMatchId = (String) allMatches.get(i).stream().findFirst().orElse(null);
+
+                                    if (currentMatchId != null) {
+                                        // The match was found
+                                        if (currentMatchId.equals(matchId)) {
+                                            // Referee wants to get removed
+                                            if (reaction.getEmoji().equalsEmoji(Emoji.CHECKERED_FLAG)) {
+                                                String listedRefereesFromSheet = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i));
+
+                                                // Check if the referees from the sheet isn't null
+                                                if (listedRefereesFromSheet != null) {
+                                                    List<String> splitReferees = new ArrayList<>(Arrays.asList(listedRefereesFromSheet.split("/")));
+
+                                                    // Check if there are actually referees in the list
+                                                    if (splitReferees.size() >= 1) {
+                                                        for (int j = 0; j < splitReferees.size(); j++) {
+                                                            splitReferees.set(j, splitReferees.get(j).trim());
+                                                        }
+
+                                                        // Check if the referee is actually part of the match and remove them if so
+                                                        if (splitReferees.remove(reactionUser.getDisplayName(server))) {
+                                                            String newReferees = String.join(" / ", splitReferees);
+                                                            authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i), newReferees);
+
+                                                            msg
+                                                                    .getChannel()
+                                                                    .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully removed yourself from **Match " + matchId + "** as a **Referee**.", reactionUser.getDiscriminatedName()));
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (reaction.getEmoji().equalsEmoji(Emoji.CAMERA)) {
+                                                String listedStreamersFromSheet = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i));
+
+                                                // Check if the referees from the sheet isn't null
+                                                if (listedStreamersFromSheet != null) {
+                                                    List<String> splitStreamers = new ArrayList<>(Arrays.asList(listedStreamersFromSheet.split("/")));
+
+                                                    // Check if there are actually streamers in the list
+                                                    if (splitStreamers.size() >= 1) {
+                                                        for (int j = 0; j < splitStreamers.size(); j++) {
+                                                            splitStreamers.set(j, splitStreamers.get(j).trim());
+                                                        }
+
+                                                        // Check if the streamer is actually part of the match and remove them if so
+                                                        if (splitStreamers.remove(reactionUser.getDisplayName(server))) {
+                                                            String newStreamers = String.join(" / ", splitStreamers);
+                                                            authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i), newStreamers);
+
+                                                            msg
+                                                                    .getChannel()
+                                                                    .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully removed yourself from **Match " + matchId + "** as a **Streamer**.", reactionUser.getDiscriminatedName()));
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            } else if (reaction.getEmoji().equalsEmoji(Emoji.MICROPHONE)) {
+                                                String listedCommentatorsFromSheet = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i));
+
+                                                // Check if the referees from the sheet isn't null
+                                                if (listedCommentatorsFromSheet != null) {
+                                                    List<String> splitCommentators = new ArrayList<>(Arrays.asList(listedCommentatorsFromSheet.split("/")));
+
+                                                    // Check if there are actually streamers in the list
+                                                    if (splitCommentators.size() >= 1) {
+                                                        for (int j = 0; j < splitCommentators.size(); j++) {
+                                                            splitCommentators.set(j, splitCommentators.get(j).trim());
+                                                        }
+
+                                                        // Check if the streamer is actually part of the match and remove them if so
+                                                        if (splitCommentators.remove(reactionUser.getDisplayName(server))) {
+                                                            String newCommentators = String.join(" / ", splitCommentators);
+                                                            authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i), newCommentators);
+
+                                                            msg
+                                                                    .getChannel()
+                                                                    .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully removed yourself from **Match " + matchId + "** as a **Commentator**.", reactionUser.getDiscriminatedName()));
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            return;
+                                        }
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                msg
+                                        .getChannel()
+                                        .sendMessage(EmbedHelper.genericErrorEmbed(GoogleSpreadsheetAuthenticator.parseException(ex), msg.getAuthor().getDiscriminatedName()));
+                            }
+                        }
+                    }
                 }
             }
         }
