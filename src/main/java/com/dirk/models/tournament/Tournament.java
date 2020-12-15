@@ -53,6 +53,7 @@ public class Tournament {
     private String teamCaptainRoleSnowflake;
     private String playerRoleSnowflake;
     private String rescheduleNotifierChannelSnowflake;
+    private String matchNotifierChannelSnowflake;
 
     private String teamsRow;
 
