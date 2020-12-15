@@ -27,7 +27,6 @@ package com.dirk.meta;
 import com.dirk.DiscordConfiguration;
 import com.dirk.models.entities.Birthday;
 import com.dirk.repositories.BirthdayRepository;
-import org.javacord.api.entity.server.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -51,12 +50,12 @@ public class BirthdayTimer {
     );
 
     BirthdayRepository birthdayRepository;
-    @Autowired
     DiscordConfiguration discordConfiguration;
 
     @Autowired
-    public BirthdayTimer(BirthdayRepository birthdayRepository) {
+    public BirthdayTimer(BirthdayRepository birthdayRepository, DiscordConfiguration discordConfiguration) {
         this.birthdayRepository = birthdayRepository;
+        this.discordConfiguration = discordConfiguration;
     }
 
     // <second> <minute> <hour> <day-of-month> <month> <day-of-week> <year> <command>
@@ -72,19 +71,21 @@ public class BirthdayTimer {
             if (today.get(Calendar.DAY_OF_MONTH) == birthdayDate.get(Calendar.DAY_OF_MONTH) &&
                     today.get(Calendar.MONTH) == birthdayDate.get(Calendar.MONTH)) {
 
-                Server server = discordConfiguration.getDiscordApi().getServerById(birthday.getBirthdayId().getServerSnowflake()).get();
+                discordConfiguration
+                        .getDiscordApi()
+                        .getServerById(birthday.getBirthdayId().getServerSnowflake())
+                        .ifPresent(server -> server.getRolesByName(BIRTHDAY_ROLE_NAME).stream().findFirst()
+                                .ifPresent(role -> server.getTextChannelsByName(BIRTHDAY_CHANNEL_NAME).stream().findFirst()
+                                        .ifPresent(textChannel -> {
+                                            Random random = new Random();
+                                            String birthdayString = BIRTHDAY_MESSAGES.get(random.nextInt(BIRTHDAY_MESSAGES.size()));
 
-                server.getRolesByName(BIRTHDAY_ROLE_NAME).stream().findFirst().ifPresent(role -> {
-                    server.getTextChannelsByName(BIRTHDAY_CHANNEL_NAME).stream().findFirst().ifPresent(textChannel -> {
-                        Random random = new Random();
-                        String birthdayString = BIRTHDAY_MESSAGES.get(random.nextInt(BIRTHDAY_MESSAGES.size()));
+                                            birthdayString = birthdayString.replace("{{birthdayUserPing}}", "<@" + birthday.getBirthdayId().getUserSnowflake() + ">")
+                                                    .replace("{{birthdayRolePing}}", role.getMentionTag());
 
-                        birthdayString = birthdayString.replace("{{birthdayUserPing}}", "<@" + birthday.getBirthdayId().getUserSnowflake() + ">")
-                                .replace("{{birthdayRolePing}}", role.getMentionTag());
+                                            textChannel.sendMessage(birthdayString);
+                                        })));
 
-                        textChannel.sendMessage(birthdayString);
-                    });
-                });
             }
         }
     }
