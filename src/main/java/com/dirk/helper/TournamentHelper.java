@@ -256,7 +256,7 @@ public class TournamentHelper {
                 List<String> tmpAllUsers = new ArrayList<>();
 
                 for (String user : allUsersSplit) {
-                    User serverUser = server.getMembersByName(user.trim()).stream().findFirst().orElse(null);
+                    User serverUser = server.getMembersByDisplayName(user.trim()).stream().findFirst().orElse(null);
 
                     if (serverUser != null) {
                         tmpAllUsers.add(serverUser.getMentionTag());
@@ -267,7 +267,7 @@ public class TournamentHelper {
 
                 finalString = String.join(" / ", tmpAllUsers);
             } else {
-                User serverUser = server.getMembersByName(allUsersSplit.get(0)).stream().findFirst().orElse(null);
+                User serverUser = server.getMembersByDisplayName(allUsersSplit.get(0)).stream().findFirst().orElse(null);
 
                 if (serverUser != null) {
                     finalString = serverUser.getMentionTag();
@@ -288,7 +288,7 @@ public class TournamentHelper {
      * @return the user with discord tag
      */
     public static String getUserAsDiscordHighlight(Server server, String user) {
-        User serverUser = server.getMembersByName(user).stream().findFirst().orElse(null);
+        User serverUser = server.getMembersByDisplayName(user).stream().findFirst().orElse(null);
         String finalString;
 
         if (serverUser != null) {

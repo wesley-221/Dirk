@@ -32,7 +32,6 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
-import java.sql.Time;
 import java.util.Date;
 
 @Getter
@@ -52,8 +51,12 @@ public class Match {
     private String streamer;
     private String commentator;
     private Date date;
-    private Time time;
+    private Boolean ignoreMatch;
 
     public Match() {
+    }
+
+    public Boolean isIgnored() {
+        return ignoreMatch != null && ignoreMatch;
     }
 }

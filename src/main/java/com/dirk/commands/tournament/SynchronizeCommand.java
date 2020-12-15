@@ -117,6 +117,7 @@ public class SynchronizeCommand extends Command {
 
             for (int i = 0; i < matchId.size(); i++) {
                 String currentMatchId = (String) matchId.get(i).stream().findFirst().orElse(null);
+                Match oldMatch = existingTournament.getAllMatches().stream().filter(match -> match.getMatchId().getMatchId().equals(currentMatchId)).findFirst().orElse(null);
 
                 // Reformat the string to database format
                 SimpleDateFormat sheetFormat = new SimpleDateFormat(dateFormat);
@@ -150,7 +151,12 @@ public class SynchronizeCommand extends Command {
                 match.setStreamer(currentStreamer);
                 match.setCommentator(currentCommentator);
 
-                existingTournament.getAllMatches().add(match);
+                // Make sure to update the ignoreMatch from the old saved match
+                if (oldMatch != null) {
+                    match.setIgnoreMatch(oldMatch.getIgnoreMatch());
+                }
+
+                existingTournament.getAllMatches().set(existingTournament.getAllMatches().indexOf(oldMatch), match);
             }
 
             for (List<Object> teamObject : teams) {
