@@ -29,11 +29,13 @@ import com.dirk.helper.Emoji;
 import com.dirk.helper.RegisterListener;
 import com.dirk.helper.TournamentHelper;
 import com.dirk.models.GoogleSpreadsheetAuthenticator;
+import com.dirk.models.tournament.Team;
 import com.dirk.models.tournament.Tournament;
 import com.dirk.repositories.TournamentRepository;
 import org.javacord.api.entity.channel.TextChannel;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAuthor;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.reaction.ReactionAddEvent;
@@ -42,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +67,7 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
     }
 
     @Override
+    @Transactional
     public void onReactionAdd(ReactionAddEvent reaction) {
         Server server = reaction.getServer().orElse(null);
 
@@ -79,17 +83,17 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
             }
 
             TextChannel textChannel = reaction.getServerTextChannel().orElse(null);
-            CompletableFuture<Message> message = reaction.getApi().getMessageById(reaction.getMessageId(), textChannel);
+            Message msg = reaction.getApi().getMessageById(reaction.getMessageId(), textChannel).getNow(null);
 
             // Gets executed when message is found
-            message.whenComplete((msg, throwable) -> {
+            if (msg != null) {
                 MessageAuthor messageAuthor = msg.getAuthor();
 
                 // Ignore all reactions added to non-Dirk messages
                 if (messageAuthor.isBotUser() && messageAuthor.getName().contains(botName)) {
                     // Check if the reaction is a thumbs up
                     if (reaction.getEmoji().equalsEmoji(Emoji.THUMBS_UP)) {
-                        Pattern reschedulePattern = Pattern.compile("Hello <@([0-9]+)>! <@([0-9]+)> would like to reschedule \\*\\*match ([0-9A-Za-z]+)\\*\\* from \\*\\*([0-9A-Za-z:\\s]+) UTC\\+0\\*\\* to \\*\\*([0-9A-Za-z:\\s]+) UTC\\+0\\*\\*\\. " +
+                        Pattern reschedulePattern = Pattern.compile("Hello <@&?([0-9]+)>! <@&?([0-9]+)> would like to reschedule \\*\\*match ([0-9A-Za-z]+)\\*\\* from \\*\\*([0-9A-Za-z:\\s]+) UTC\\+0\\*\\* to \\*\\*([0-9A-Za-z:\\s]+) UTC\\+0\\*\\*\\. " +
                                 "If you would like to accept this reschedule, react to this message with a ");
                         Matcher matcher = reschedulePattern.matcher(msg.getContent());
 
@@ -100,12 +104,31 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                             String originalDate = matcher.group(4);
                             String proposedDate = matcher.group(5);
 
-                            // TODO: check if the tournament is a team tournament or not
-                            // The reaction was send by the opponent
-                            if (reactionUser.getIdAsString().equals(opponent) || DEVELOPMENT_TOGGLE) {
-                                try {
-                                    Tournament existingTournament = TournamentHelper.getRunningTournament(msg, tournamentRepository);
+                            try {
+                                Tournament existingTournament = TournamentHelper.getRunningTournament(msg, tournamentRepository);
+                                boolean canReschedule = false;
 
+                                // Tournament is a team tournament
+                                if (existingTournament.getIsTeamTournament()) {
+                                    List<Team> allTeams = existingTournament.getAllTeams();
+                                    Role opponentRole = server.getRoleById(opponent).orElse(null);
+
+                                    if (opponentRole != null) {
+                                        for (Team team : allTeams) {
+                                            // Check for both team captain & team name
+                                            if (team.getCaptain().equals(reactionUser.getDisplayName(server)) && opponentRole.getName().equals(team.getTeamId().getName())) {
+                                                canReschedule = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                // Tournament is a player vs player
+                                else {
+                                    canReschedule = reactionUser.getIdAsString().equals(opponent);
+                                }
+
+                                // The reaction was send by the opponent
+                                if (canReschedule || DEVELOPMENT_TOGGLE) {
                                     String spreadsheetId = TournamentHelper.getSpreadsheetIdFromUrl(existingTournament.getSpreadsheet());
                                     GoogleSpreadsheetAuthenticator authenticator = new GoogleSpreadsheetAuthenticator(spreadsheetId);
 
@@ -181,21 +204,23 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                             }
                                         }
                                     }
-                                } catch (Exception ex) {
-                                    msg
-                                            .getChannel()
-                                            .sendMessage(EmbedHelper.genericErrorEmbed(GoogleSpreadsheetAuthenticator.parseException(ex), msg.getAuthor().getDiscriminatedName()));
                                 }
+                            } catch (Exception ex) {
+                                msg
+                                        .getChannel()
+                                        .sendMessage(EmbedHelper.genericErrorEmbed(GoogleSpreadsheetAuthenticator.parseException(ex), msg.getAuthor().getDiscriminatedName()));
                             }
                         }
-                    } /* TODO: remove yourself from a match when clicking on these emojis
+                    }
+
+                    /* TODO: remove yourself from a match when clicking on these emojis
                     else if (reaction.getEmoji().equalsEmoji(Emoji.CHECKERED_FLAG) ||
                             reaction.getEmoji().equalsEmoji(Emoji.CAMERA) ||
                             reaction.getEmoji().equalsEmoji(Emoji.MICROPHONE)) {
 
                     }*/
                 }
-            });
+            }
         }
     }
 }

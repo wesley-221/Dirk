@@ -32,15 +32,18 @@ import com.dirk.models.command.Command;
 import com.dirk.models.command.CommandArgument;
 import com.dirk.models.command.CommandArgumentType;
 import com.dirk.models.command.CommandParameter;
+import com.dirk.models.tournament.Team;
 import com.dirk.models.tournament.Tournament;
 import com.dirk.repositories.TournamentRepository;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -74,6 +77,7 @@ public class RescheduleCommand extends Command {
     }
 
     @Override
+    @Transactional
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
         Tournament existingTournament = TournamentHelper.getRunningTournament(messageCreateEvent, tournamentRepository);
 
@@ -128,22 +132,53 @@ public class RescheduleCommand extends Command {
                         assert playerOne != null;
                         assert playerTwo != null;
 
-                        // Check if the user is either player one or two
-                        // TODO: check if it is a team tournament
-                        if (!List.of(playerOne, playerTwo).contains(messageCreateEvent.getMessageAuthor().getName())) {
-                            messageCreateEvent
-                                    .getChannel()
-                                    .sendMessage(EmbedHelper.genericErrorEmbed("You are not part of this match. \n\n" +
-                                            "**Is this incorrect? Ping any of the tournament hosts!**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
-                            return;
+                        // The current tournament is a team tournament
+                        if (existingTournament.getIsTeamTournament()) {
+                            List<Team> allTeams = existingTournament.getAllTeams();
+
+                            boolean teamCaptainFound = false;
+
+                            for (Team team : allTeams) {
+                                if (team.getCaptain().equals(messageCreateEvent.getMessageAuthor().getDisplayName())) {
+                                    teamCaptainFound = true;
+                                }
+                            }
+
+                            if (!teamCaptainFound) {
+                                messageCreateEvent
+                                        .getChannel()
+                                        .sendMessage(EmbedHelper.genericErrorEmbed("You are not the team captain of either team.\n\n" +
+                                                "**Is this incorrect? Ping any of the tournament hosts!**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                                return;
+                            }
+                        }
+                        // The current tournament is a player vs player tournament
+                        else {
+                            // Check if the user is either player one or two
+                            if (!List.of(playerOne, playerTwo).contains(messageCreateEvent.getMessageAuthor().getDisplayName())) {
+                                messageCreateEvent
+                                        .getChannel()
+                                        .sendMessage(EmbedHelper.genericErrorEmbed("You are not part of this match. \n\n" +
+                                                "**Is this incorrect? Ping any of the tournament hosts!**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                                return;
+                            }
                         }
 
                         SimpleDateFormat format = new SimpleDateFormat("d MMMM H:mm");
 
                         Server server = messageCreateEvent.getServer().get();
 
-                        User userOne = server.getMembersByName(playerOne).stream().findFirst().orElse(null);
-                        User userTwo = server.getMembersByName(playerTwo).stream().findFirst().orElse(null);
+                        Object userOne;
+                        Object userTwo;
+
+                        // Change userOne/Two to either a Role or User depending on solo or team tournament
+                        if (existingTournament.getIsTeamTournament()) {
+                            userOne = server.getRolesByName(playerOne).stream().findFirst().orElse(null);
+                            userTwo = server.getRolesByName(playerTwo).stream().findFirst().orElse(null);
+                        } else {
+                            userOne = server.getMembersByName(playerOne).stream().findFirst().orElse(null);
+                            userTwo = server.getMembersByName(playerTwo).stream().findFirst().orElse(null);
+                        }
 
                         // Check if the users exist in the Discord
                         if (userOne == null || userTwo == null) {
@@ -192,12 +227,34 @@ public class RescheduleCommand extends Command {
                             return;
                         }
 
-                        String message = String.format("Hello %s! %s would like to reschedule **match %s** from **%s UTC+0** to **%s UTC+0**. If you would like to accept this reschedule, react to this message with a " + Emoji.THUMBS_UP + ". ",
-                                "<@" + (messageCreateEvent.getMessageAuthor().getName().equals(playerOne) ? userTwo.getId() : userOne.getId()) + ">",
-                                "<@" + (messageCreateEvent.getMessageAuthor().getName().equals(playerOne) ? userOne.getId() : userTwo.getId()) + ">",
-                                userMatchId,
-                                format.format(originalDate),
-                                format.format(date));
+                        String userOnePing = (userOne instanceof User) ? "<@" + ((User) userOne).getId() + ">" : "<@&" + ((Role) userOne).getId() + ">";
+                        String userTwoPing = (userTwo instanceof User) ? "<@" + ((User) userTwo).getId() + ">" : "<@&" + ((Role) userTwo).getId() + ">";
+
+                        String message;
+
+                        if (existingTournament.getIsTeamTournament()) {
+                            String teamOneCaptain = "";
+
+                            for (Team team : existingTournament.getAllTeams()) {
+                                if (team.getTeamId().getName().equals(((Role) userOne).getName())) {
+                                    teamOneCaptain = team.getCaptain();
+                                }
+                            }
+
+                            message = String.format("Hello %s! %s would like to reschedule **match %s** from **%s UTC+0** to **%s UTC+0**. If you would like to accept this reschedule, react to this message with a " + Emoji.THUMBS_UP + ". ",
+                                    (messageCreateEvent.getMessageAuthor().getDisplayName().equals(teamOneCaptain) ? userTwoPing : userOnePing),
+                                    (messageCreateEvent.getMessageAuthor().getDisplayName().equals(teamOneCaptain) ? userOnePing : userTwoPing),
+                                    userMatchId,
+                                    format.format(originalDate),
+                                    format.format(date));
+                        } else {
+                            message = String.format("Hello %s! %s would like to reschedule **match %s** from **%s UTC+0** to **%s UTC+0**. If you would like to accept this reschedule, react to this message with a " + Emoji.THUMBS_UP + ". ",
+                                    (messageCreateEvent.getMessageAuthor().getDisplayName().equals(playerOne) ? userTwoPing : userOnePing),
+                                    (messageCreateEvent.getMessageAuthor().getDisplayName().equals(playerOne) ? userOnePing : userTwoPing),
+                                    userMatchId,
+                                    format.format(originalDate),
+                                    format.format(date));
+                        }
 
                         CompletableFuture<Message> sentMessage = messageCreateEvent
                                 .getChannel()
@@ -219,12 +276,5 @@ public class RescheduleCommand extends Command {
                     .getChannel()
                     .sendMessage(EmbedHelper.genericErrorEmbed(GoogleSpreadsheetAuthenticator.parseException(ex), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
         }
-
-//        // Tournament is player vs player
-//        if (!existingTournament.getIsTeamTournament()) {
-//
-//        } else {
-//
-//        }
     }
 }
