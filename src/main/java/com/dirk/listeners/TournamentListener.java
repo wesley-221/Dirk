@@ -200,6 +200,8 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                                     authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), dateRow, sheetDateSDF.format(formattedDate));
                                                     authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), timeRow, timeSDF.format(formattedDate));
 
+                                                    TournamentHelper.synchronizeSpreadsheet(tournamentRepository, existingTournament);
+
                                                     String rescheduledMatch = "**Match " + matchId + " (" + playerOneDiscordTag + " vs " + playerTwoDiscordTag + ")** has been rescheduled from **" + originalDate + " UTC+0** to **" + proposedDate + " UTC+0**.";
                                                     String staffOnMatch = "**__Referee:__** " + allRefereesString + "\n" +
                                                             "**__Streamer:__** " + allStreamersString + "\n" +
@@ -282,6 +284,8 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                                             String newReferees = String.join(" / ", splitReferees);
                                                             authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i), newReferees);
 
+                                                            TournamentHelper.synchronizeSpreadsheet(tournamentRepository, existingTournament);
+
                                                             msg
                                                                     .getChannel()
                                                                     .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully removed yourself from **Match " + matchId + "** as a **Referee**.", reactionUser.getDiscriminatedName()));
@@ -307,6 +311,8 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                                             String newStreamers = String.join(" / ", splitStreamers);
                                                             authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i), newStreamers);
 
+                                                            TournamentHelper.synchronizeSpreadsheet(tournamentRepository, existingTournament);
+
                                                             msg
                                                                     .getChannel()
                                                                     .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully removed yourself from **Match " + matchId + "** as a **Streamer**.", reactionUser.getDiscriminatedName()));
@@ -331,6 +337,8 @@ public class TournamentListener implements ReactionAddListener, RegisterListener
                                                         if (splitCommentators.remove(reactionUser.getDisplayName(server))) {
                                                             String newCommentators = String.join(" / ", splitCommentators);
                                                             authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i), newCommentators);
+
+                                                            TournamentHelper.synchronizeSpreadsheet(tournamentRepository, existingTournament);
 
                                                             msg
                                                                     .getChannel()

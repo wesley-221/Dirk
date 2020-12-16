@@ -37,6 +37,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,6 +65,7 @@ public class TakeAsRefereeCommand extends Command {
     }
 
     @Override
+    @Transactional
     public void execute(MessageCreateEvent messageCreateEvent, List<CommandParameter> commandParams) {
         Tournament existingTournament = TournamentHelper.getRunningTournament(messageCreateEvent, tournamentRepository);
 
@@ -144,6 +146,8 @@ public class TakeAsRefereeCommand extends Command {
                         }
 
                         authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i), newReferees.toString());
+
+                        TournamentHelper.synchronizeSpreadsheet(tournamentRepository, existingTournament);
 
                         messageCreateEvent
                                 .getChannel()

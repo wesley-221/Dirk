@@ -25,7 +25,11 @@
 package com.dirk.helper;
 
 import com.dirk.models.GoogleSpreadsheetAuthenticator;
+import com.dirk.models.tournament.Match;
+import com.dirk.models.tournament.Team;
 import com.dirk.models.tournament.Tournament;
+import com.dirk.models.tournament.embeddable.MatchId;
+import com.dirk.models.tournament.embeddable.TeamId;
 import com.dirk.repositories.TournamentRepository;
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.permission.Role;
@@ -35,10 +39,10 @@ import org.javacord.api.event.message.CertainMessageEvent;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.security.GeneralSecurityException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -385,5 +389,99 @@ public class TournamentHelper {
         }
 
         return listedRowFromSheet;
+    }
+
+    /**
+     * Save all spreadsheet data to the database
+     *
+     * @param tournamentRepository the repository used to save the tournament
+     * @param tournament           the tournament to save as
+     * @throws IOException              the error when something fails
+     * @throws GeneralSecurityException the error when something fails
+     * @throws ParseException           the error when something fails
+     */
+    public static void synchronizeSpreadsheet(TournamentRepository tournamentRepository, Tournament tournament) throws IOException, GeneralSecurityException, ParseException {
+        String spreadsheetId = TournamentHelper.getSpreadsheetIdFromUrl(tournament.getSpreadsheet());
+        GoogleSpreadsheetAuthenticator authenticator = new GoogleSpreadsheetAuthenticator(spreadsheetId);
+
+        List<List<Object>> matchId = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getMatchIdRow());
+        List<List<Object>> date = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getDateRow());
+        List<List<Object>> time = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getTimeRow());
+        List<List<Object>> playerOne = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getPlayerOneRow());
+        List<List<Object>> playerTwo = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getPlayerTwoRow());
+        List<List<Object>> referee = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getRefereeRow());
+        List<List<Object>> streamer = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getStreamerRow());
+        List<List<Object>> commentator = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getCommentatorRow());
+        List<List<Object>> teams = authenticator.getDataFromRange(tournament.getScheduleTab(), tournament.getTeamsRow());
+
+        String dateFormat = tournament
+                .getDateFormat()
+                .replace("%d", "dd")
+                .replace("%m", "MM")
+                .replace("-", "/")
+                + "/yyyy H:m";
+
+        for (int i = 0; i < matchId.size(); i++) {
+            String currentMatchId = (String) matchId.get(i).stream().findFirst().orElse(null);
+            Match oldMatch = tournament.getAllMatches().stream().filter(match -> match.getMatchId().getMatchId().equals(currentMatchId)).findFirst().orElse(null);
+
+            // Reformat the string to database format
+            SimpleDateFormat sheetFormat = new SimpleDateFormat(dateFormat);
+
+            String currentDateString = (String) date.get(i).stream().findFirst().orElse(null);
+            currentDateString += "/" + Calendar.getInstance().get(Calendar.YEAR);
+            currentDateString += " " + time.get(i).stream().findFirst().orElse(null);
+
+            Date currentDate = sheetFormat.parse(currentDateString);
+            String currentPlayerOne = (String) playerOne.get(i).stream().findFirst().orElse(null);
+            String currentPlayerTwo = (String) playerTwo.get(i).stream().findFirst().orElse(null);
+            String currentReferee = referee.size() > i ? (String) referee.get(i).stream().findFirst().orElse(null) : null;
+            String currentStreamer = streamer.size() > i ? (String) streamer.get(i).stream().findFirst().orElse(null) : null;
+            String currentCommentator = commentator.size() > i ? (String) commentator.get(i).stream().findFirst().orElse(null) : null;
+
+            Match match = new Match();
+
+            // Create the primary key
+            MatchId matchIdEmbeddable = new MatchId();
+            matchIdEmbeddable.setMatchId(currentMatchId);
+            matchIdEmbeddable.setServerSnowflake(tournament.getServerSnowflake());
+
+            // Set the primary key & tournament
+            match.setMatchId(matchIdEmbeddable);
+            match.setTournament(tournament);
+
+            match.setDate(currentDate);
+            match.setPlayerOne(currentPlayerOne);
+            match.setPlayerTwo(currentPlayerTwo);
+            match.setReferee(currentReferee);
+            match.setStreamer(currentStreamer);
+            match.setCommentator(currentCommentator);
+
+            // Make sure to update the ignoreMatch from the old saved match
+            if (oldMatch != null) {
+                match.setIgnoreMatch(oldMatch.getIgnoreMatch());
+            }
+
+            tournament.getAllMatches().set(tournament.getAllMatches().indexOf(oldMatch), match);
+        }
+
+        for (List<Object> teamObject : teams) {
+            String teamName = teamObject.get(0).toString();
+            String teamCaptain = teamObject.get(1).toString();
+
+            Team team = new Team();
+
+            TeamId teamIdEmbeddable = new TeamId();
+            teamIdEmbeddable.setName(teamName);
+            teamIdEmbeddable.setServerSnowflake(tournament.getServerSnowflake());
+
+            team.setTeamId(teamIdEmbeddable);
+            team.setTournament(tournament);
+            team.setCaptain(teamCaptain);
+
+            tournament.getAllTeams().add(team);
+        }
+
+        tournamentRepository.save(tournament);
     }
 }
