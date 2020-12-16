@@ -134,7 +134,7 @@ public class TakeAsCommentatorCommand extends Command {
                                 }
 
                                 for (String splitCommentator : splitCommentators) {
-                                    if (splitCommentator.equals(messageCreateEvent.getMessageAuthor().getName())) {
+                                    if (splitCommentator.equals(messageCreateEvent.getMessageAuthor().getDisplayName())) {
                                         messageCreateEvent
                                                 .getChannel()
                                                 .sendMessage(EmbedHelper.genericErrorEmbed("You are already listed as a commentator for this match.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
@@ -142,15 +142,15 @@ public class TakeAsCommentatorCommand extends Command {
                                     }
                                 }
 
-                                splitCommentators.add(messageCreateEvent.getMessageAuthor().getName());
+                                splitCommentators.add(messageCreateEvent.getMessageAuthor().getDisplayName());
                                 newCommentators.append(String.join(" / ", splitCommentators));
                             } else {
-                                newCommentators.append(messageCreateEvent.getMessageAuthor().getName());
+                                newCommentators.append(messageCreateEvent.getMessageAuthor().getDisplayName());
                             }
                         }
                         // There is no commentator yet, add it right away
                         else {
-                            newCommentators = new StringBuilder(messageCreateEvent.getMessageAuthor().getName());
+                            newCommentators = new StringBuilder(messageCreateEvent.getMessageAuthor().getDisplayName());
                         }
 
                         authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i), newCommentators.toString());

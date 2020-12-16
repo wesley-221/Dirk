@@ -134,7 +134,7 @@ public class TakeAsRefereeCommand extends Command {
                                 }
 
                                 for (String splitReferee : splitReferees) {
-                                    if (splitReferee.equals(messageCreateEvent.getMessageAuthor().getName())) {
+                                    if (splitReferee.equals(messageCreateEvent.getMessageAuthor().getDisplayName())) {
                                         messageCreateEvent
                                                 .getChannel()
                                                 .sendMessage(EmbedHelper.genericErrorEmbed("You are already listed as a referee for this match.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
@@ -142,15 +142,15 @@ public class TakeAsRefereeCommand extends Command {
                                     }
                                 }
 
-                                splitReferees.add(messageCreateEvent.getMessageAuthor().getName());
+                                splitReferees.add(messageCreateEvent.getMessageAuthor().getDisplayName());
                                 newReferees.append(String.join(" / ", splitReferees));
                             } else {
-                                newReferees.append(messageCreateEvent.getMessageAuthor().getName());
+                                newReferees.append(messageCreateEvent.getMessageAuthor().getDisplayName());
                             }
                         }
                         // There is no referee yet, add it right away
                         else {
-                            newReferees = new StringBuilder(messageCreateEvent.getMessageAuthor().getName());
+                            newReferees = new StringBuilder(messageCreateEvent.getMessageAuthor().getDisplayName());
                         }
 
                         authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i), newReferees.toString());

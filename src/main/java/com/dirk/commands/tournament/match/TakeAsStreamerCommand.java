@@ -134,7 +134,7 @@ public class TakeAsStreamerCommand extends Command {
                                 }
 
                                 for (String splitStreamer : splitStreamers) {
-                                    if (splitStreamer.equals(messageCreateEvent.getMessageAuthor().getName())) {
+                                    if (splitStreamer.equals(messageCreateEvent.getMessageAuthor().getDisplayName())) {
                                         messageCreateEvent
                                                 .getChannel()
                                                 .sendMessage(EmbedHelper.genericErrorEmbed("You are already listed as a streamer for this match.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
@@ -142,15 +142,15 @@ public class TakeAsStreamerCommand extends Command {
                                     }
                                 }
 
-                                splitStreamers.add(messageCreateEvent.getMessageAuthor().getName());
+                                splitStreamers.add(messageCreateEvent.getMessageAuthor().getDisplayName());
                                 newStreamers.append(String.join(" / ", splitStreamers));
                             } else {
-                                newStreamers.append(messageCreateEvent.getMessageAuthor().getName());
+                                newStreamers.append(messageCreateEvent.getMessageAuthor().getDisplayName());
                             }
                         }
                         // There is no streamer yet, add it right away
                         else {
-                            newStreamers = new StringBuilder(messageCreateEvent.getMessageAuthor().getName());
+                            newStreamers = new StringBuilder(messageCreateEvent.getMessageAuthor().getDisplayName());
                         }
 
                         authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getStreamerRow(), i), newStreamers.toString());
