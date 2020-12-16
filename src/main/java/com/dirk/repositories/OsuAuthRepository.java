@@ -22,19 +22,13 @@
  * SOFTWARE.
  */
 
-package com.dirk;
+package com.dirk.repositories;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import com.dirk.models.OsuAuthentication;
+import org.springframework.data.repository.CrudRepository;
 
-@EnableJpaAuditing
-@EnableScheduling
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-public class DirkApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(DirkApplication.class, args);
-    }
+import java.util.UUID;
+
+public interface OsuAuthRepository extends CrudRepository<OsuAuthentication, Integer> {
+    OsuAuthentication getByUserSecret(UUID secret);
 }

@@ -22,19 +22,38 @@
  * SOFTWARE.
  */
 
-package com.dirk;
+package com.dirk.models;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import java.util.StringJoiner;
 
-@EnableJpaAuditing
-@EnableScheduling
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-public class DirkApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(DirkApplication.class, args);
+public class OsuMeHelper {
+    private Long id;
+    private String username;
+
+    public OsuMeHelper() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", OsuMeHelper.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("username='" + username + "'")
+                .toString();
     }
 }
