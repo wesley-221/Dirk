@@ -43,19 +43,19 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class TakeAsRefereeCommand extends Command {
+public class DropAsRefereeCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public TakeAsRefereeCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "takeasreferee";
-        this.description = "Take a match as a referee";
+    public DropAsRefereeCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "dropasreferee";
+        this.description = "Drop a match as a referee";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
 
-        this.commandArguments.add(new CommandArgument("match id", "The id of the match to take", CommandArgumentType.String));
+        this.commandArguments.add(new CommandArgument("match id", "The id of the match to drop", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
@@ -122,10 +122,13 @@ public class TakeAsRefereeCommand extends Command {
                         String listedReferees = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i));
 
                         StringBuilder newReferees = new StringBuilder();
+                        List<String> splitReferees = new ArrayList<>();
+
+                        boolean refereeFound = false;
 
                         // Check if there is already a referees
                         if (listedReferees != null) {
-                            List<String> splitReferees = new ArrayList<>(Arrays.asList(listedReferees.split("/")));
+                            splitReferees = new ArrayList<>(Arrays.asList(listedReferees.split("/")));
 
                             // Check if there is at least one referees in the list
                             if (splitReferees.size() >= 1) {
@@ -135,23 +138,22 @@ public class TakeAsRefereeCommand extends Command {
 
                                 for (String splitReferee : splitReferees) {
                                     if (splitReferee.equals(messageCreateEvent.getMessageAuthor().getDisplayName())) {
-                                        messageCreateEvent
-                                                .getChannel()
-                                                .sendMessage(EmbedHelper.genericErrorEmbed("You are already listed as a referee for this match.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
-                                        return;
+                                        refereeFound = true;
                                     }
                                 }
-
-                                splitReferees.add(messageCreateEvent.getMessageAuthor().getDisplayName());
-                                newReferees.append(String.join(" / ", splitReferees));
-                            } else {
-                                newReferees.append(messageCreateEvent.getMessageAuthor().getDisplayName());
                             }
                         }
-                        // There is no referee yet, add it right away
-                        else {
-                            newReferees = new StringBuilder(messageCreateEvent.getMessageAuthor().getDisplayName());
+
+                        // Referee was not found, can't drop
+                        if (!refereeFound) {
+                            messageCreateEvent
+                                    .getChannel()
+                                    .sendMessage(EmbedHelper.genericErrorEmbed("You are not listed as a **Referee** on this match.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                            return;
                         }
+
+                        splitReferees.remove(messageCreateEvent.getMessageAuthor().getDisplayName());
+                        newReferees.append(String.join(" / ", splitReferees));
 
                         authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i), newReferees.toString());
 
@@ -160,7 +162,7 @@ public class TakeAsRefereeCommand extends Command {
                         messageCreateEvent
                                 .getChannel()
                                 .sendMessage(EmbedHelper
-                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully took the match " + matchId + " as a **Referee**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully dropped the match " + matchId + " as a **Referee**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
                         return;
                     }
                 }

@@ -80,7 +80,7 @@ public class TakeAsCommentatorCommand extends Command {
         if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getCommentatorRoleSnowflake())) {
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed("You don't have the Commentator role. \n" +
+                    .sendMessage(EmbedHelper.genericErrorEmbed("You don't have the **Commentator** role. \n" +
                             "**Ping one of the Tournament hosts in order to get this role.**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
@@ -160,7 +160,7 @@ public class TakeAsCommentatorCommand extends Command {
                         messageCreateEvent
                                 .getChannel()
                                 .sendMessage(EmbedHelper
-                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully took the match " + matchId + " as a **commentator**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully took the match " + matchId + " as a **Commentator**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
                         return;
                     }
                 }

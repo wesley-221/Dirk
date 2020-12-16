@@ -80,7 +80,7 @@ public class TakeAsStreamerCommand extends Command {
         if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getStreamerRoleSnowflake())) {
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed("You don't have the Streamer role. \n" +
+                    .sendMessage(EmbedHelper.genericErrorEmbed("You don't have the **Streamer** role. \n" +
                             "**Ping one of the Tournament hosts in order to get this role.**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
@@ -160,7 +160,7 @@ public class TakeAsStreamerCommand extends Command {
                         messageCreateEvent
                                 .getChannel()
                                 .sendMessage(EmbedHelper
-                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully took the match " + matchId + " as a **streamer**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully took the match " + matchId + " as a **Streamer**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
                         return;
                     }
                 }

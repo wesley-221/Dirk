@@ -43,19 +43,19 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class TakeAsRefereeCommand extends Command {
+public class DropAsCommentatorCommand extends Command {
     private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public TakeAsRefereeCommand(TournamentRepository tournamentRepository) {
-        this.commandName = "takeasreferee";
-        this.description = "Take a match as a referee";
+    public DropAsCommentatorCommand(TournamentRepository tournamentRepository) {
+        this.commandName = "dropascommentator";
+        this.description = "Drop a match as a commentator";
         this.group = "Tournament management";
 
         this.requiresAdmin = true;
         this.guildOnly = true;
 
-        this.commandArguments.add(new CommandArgument("match id", "The id of the match to take", CommandArgumentType.String));
+        this.commandArguments.add(new CommandArgument("match id", "The id of the match to drop", CommandArgumentType.String));
 
         this.tournamentRepository = tournamentRepository;
     }
@@ -77,10 +77,10 @@ public class TakeAsRefereeCommand extends Command {
         }
 
         // The user doesn't have the appropriate role to run this command
-        if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getRefereeRoleSnowflake())) {
+        if (!TournamentHelper.hasRoleOrIsServerOwner(messageCreateEvent, existingTournament.getCommentatorRoleSnowflake())) {
             messageCreateEvent
                     .getChannel()
-                    .sendMessage(EmbedHelper.genericErrorEmbed("You don't have the **Referee** role. \n" +
+                    .sendMessage(EmbedHelper.genericErrorEmbed("You don't have the **Commentator** role. \n" +
                             "**Ping one of the Tournament hosts in order to get this role.**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
@@ -118,49 +118,51 @@ public class TakeAsRefereeCommand extends Command {
                 if (matchId != null) {
                     // The entered match exists
                     if (matchId.equals(commandParamMatchId.getValue())) {
-                        // Get the listed referees from the spreadsheet
-                        String listedReferees = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i));
+                        // Get the listed commentators from the spreadsheet
+                        String listedCommentators = TournamentHelper.getSheetRowAsString(authenticator, existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i));
 
-                        StringBuilder newReferees = new StringBuilder();
+                        StringBuilder newCommentators = new StringBuilder();
+                        List<String> splitCommentators = new ArrayList<>();
 
-                        // Check if there is already a referees
-                        if (listedReferees != null) {
-                            List<String> splitReferees = new ArrayList<>(Arrays.asList(listedReferees.split("/")));
+                        boolean commentatorFound = false;
 
-                            // Check if there is at least one referees in the list
-                            if (splitReferees.size() >= 1) {
-                                for (int j = 0; j < splitReferees.size(); j++) {
-                                    splitReferees.set(j, splitReferees.get(j).trim());
+                        // Check if there is already a commentators
+                        if (listedCommentators != null) {
+                            splitCommentators = new ArrayList<>(Arrays.asList(listedCommentators.split("/")));
+
+                            // Check if there is at least one commentators in the list
+                            if (splitCommentators.size() >= 1) {
+                                for (int j = 0; j < splitCommentators.size(); j++) {
+                                    splitCommentators.set(j, splitCommentators.get(j).trim());
                                 }
 
-                                for (String splitReferee : splitReferees) {
-                                    if (splitReferee.equals(messageCreateEvent.getMessageAuthor().getDisplayName())) {
-                                        messageCreateEvent
-                                                .getChannel()
-                                                .sendMessage(EmbedHelper.genericErrorEmbed("You are already listed as a referee for this match.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
-                                        return;
+                                for (String splitCommentator : splitCommentators) {
+                                    if (splitCommentator.equals(messageCreateEvent.getMessageAuthor().getDisplayName())) {
+                                        commentatorFound = true;
                                     }
                                 }
-
-                                splitReferees.add(messageCreateEvent.getMessageAuthor().getDisplayName());
-                                newReferees.append(String.join(" / ", splitReferees));
-                            } else {
-                                newReferees.append(messageCreateEvent.getMessageAuthor().getDisplayName());
                             }
                         }
-                        // There is no referee yet, add it right away
-                        else {
-                            newReferees = new StringBuilder(messageCreateEvent.getMessageAuthor().getDisplayName());
+
+                        // Commentator was not found, can't drop
+                        if (!commentatorFound) {
+                            messageCreateEvent
+                                    .getChannel()
+                                    .sendMessage(EmbedHelper.genericErrorEmbed("You are not listed as a **Commentator** on this match.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                            return;
                         }
 
-                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getRefereeRow(), i), newReferees.toString());
+                        splitCommentators.remove(messageCreateEvent.getMessageAuthor().getDisplayName());
+                        newCommentators.append(String.join(" / ", splitCommentators));
+
+                        authenticator.updateDataOnSheet(existingTournament.getScheduleTab(), TournamentHelper.getRangeFromRow(existingTournament.getCommentatorRow(), i), newCommentators.toString());
 
                         TournamentHelper.synchronizeSpreadsheet(tournamentRepository, existingTournament);
 
                         messageCreateEvent
                                 .getChannel()
                                 .sendMessage(EmbedHelper
-                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully took the match " + matchId + " as a **Referee**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+                                        .genericSuccessEmbed("**<@" + messageCreateEvent.getMessageAuthor().getId() + ">** successfully dropped the match " + matchId + " as a **Commentator**", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
                         return;
                     }
                 }
