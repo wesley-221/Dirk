@@ -192,7 +192,13 @@ public class TournamentHelper {
                 tournament.getStreamerRow() != null &&
                 tournament.getCommentatorRow() != null &&
                 tournament.getDateRow() != null &&
-                tournament.getTimeRow() != null;
+                tournament.getTimeRow() != null &&
+                tournament.getAdminRoleSnowflake() != null &&
+                tournament.getRefereeRoleSnowflake() != null &&
+                tournament.getCommentatorRoleSnowflake() != null &&
+                tournament.getStreamerRoleSnowflake() != null &&
+                tournament.getRescheduleNotifierChannelSnowflake() != null &&
+                tournament.getMatchNotifierChannelSnowflake() != null;
     }
 
     /**
@@ -202,26 +208,50 @@ public class TournamentHelper {
      * @return the status of the tournament
      */
     public static String getTournamentStatus(Tournament tournament) {
-        return "**Spreadsheet:** " +
-                (tournament.getSpreadsheet() != null ? "[link to spreadsheet](" + tournament.getSpreadsheet() + ")" : "Not set") + "\n" +
-                "**Schedule tab:** " +
-                (tournament.getScheduleTab() != null ? "`" + tournament.getScheduleTab() + "`" : "Not set") + "\n" +
+        return "**Tournament name:** " +
+                (tournament.getName() != null ? "`" + (tournament.getName() != null ? tournament.getName() : "Not set") + "`" : "Not set") + "\n" +
                 "**Tournament type:** " +
                 (tournament.getIsTeamTournament() != null ? "`" + (tournament.getIsTeamTournament() ? "teams" : "solo") + "`" : "Not set") + "\n\n" +
+
+                "**Spreadsheet:** " +
+                (tournament.getSpreadsheet() != null ? "[link to spreadsheet](" + tournament.getSpreadsheet() + ")" : "Not set") + "\n" +
+                "**Schedule tab:** " +
+                (tournament.getScheduleTab() != null ? "`" + tournament.getScheduleTab() + "`" : "Not set") + "\n\n" +
+
+                "**Match notifier channel:** " +
+                (tournament.getMatchNotifierChannelSnowflake() != null ? "<#" + tournament.getMatchNotifierChannelSnowflake() + ">" : "Not set") + "\n" +
+                "**Reschedule notifier channel:** " +
+                (tournament.getRescheduleNotifierChannelSnowflake() != null ? "<#" + tournament.getRescheduleNotifierChannelSnowflake() + ">" : "Not set") + "\n\n" +
+
+                "**Admin role:** " +
+                (tournament.getAdminRoleSnowflake() != null ? "<@&" + tournament.getAdminRoleSnowflake() + ">" : "Not set") + "\n" +
+
+                "**Referee role:** " +
+                (tournament.getRefereeRoleSnowflake() != null ? "<@&" + tournament.getRefereeRoleSnowflake() + ">" : "Not set") + "\n" +
+
+                "**Streamer role:** " +
+                (tournament.getStreamerRoleSnowflake() != null ? "<@&" + tournament.getStreamerRoleSnowflake() + ">" : "Not set") + "\n" +
+
+                "**Commentator role:** " +
+                (tournament.getCommentatorRoleSnowflake() != null ? "<@&" + tournament.getCommentatorRoleSnowflake() + ">" : "Not set") + "\n\n" +
+
                 "**Match id row:** " +
                 (tournament.getMatchIdRow() != null ? "`" + tournament.getMatchIdRow() + "`" : "Not set") + "\n" +
                 "**Date format:** " +
                 (tournament.getDateFormat() != null ? "`" + tournament.getDateFormat() + "`" : "Not set") + "\n\n" +
+
                 "**Player/team 1 row:** " +
                 (tournament.getPlayerOneRow() != null ? "`" + tournament.getPlayerOneRow() + "`" : "Not set") + "\n" +
                 "**Player/team 2 row:** " +
                 (tournament.getPlayerTwoRow() != null ? "`" + tournament.getPlayerTwoRow() + "`" : "Not set") + "\n\n" +
+
                 "**Referee row**: " +
                 (tournament.getRefereeRow() != null ? "`" + tournament.getRefereeRow() + "`" : "Not set") + "\n" +
                 "**Streamer row**: " +
                 (tournament.getStreamerRow() != null ? "`" + tournament.getStreamerRow() + "`" : "Not set") + "\n" +
                 "**Commentator row**: " +
                 (tournament.getCommentatorRow() != null ? "`" + tournament.getCommentatorRow() + "`" : "Not set") + "\n\n" +
+
                 "**Date row**: " +
                 (tournament.getDateRow() != null ? "`" + tournament.getDateRow() + "`" : "Not set") + "\n" +
                 "**Time row**: " +

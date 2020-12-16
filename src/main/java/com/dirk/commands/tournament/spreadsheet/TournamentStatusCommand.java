@@ -69,7 +69,7 @@ public class TournamentStatusCommand extends Command {
                 .getChannel()
                 .sendMessage(new EmbedBuilder()
                         .setTimestampToNow()
-                        .setColor(Color.GREEN)
+                        .setColor(TournamentHelper.isTournamentProperlySetup(existingTournament) ? Color.GREEN : Color.RED)
                         .setAuthor("Tournament status")
                         .setDescription(TournamentHelper.getTournamentStatus(existingTournament)));
     }

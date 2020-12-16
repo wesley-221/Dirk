@@ -88,6 +88,14 @@ public class RescheduleCommand extends Command {
             return;
         }
 
+        // Check if the tournament is properly setup
+        if (!TournamentHelper.isTournamentProperlySetup(existingTournament)) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("The tournament hasn't been setup yet.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         String userMatchId = (String) commandParams.get(0).getValue();
         String userDay = (String) commandParams.get(1).getValue();
         String userMonth = (String) commandParams.get(2).getValue();

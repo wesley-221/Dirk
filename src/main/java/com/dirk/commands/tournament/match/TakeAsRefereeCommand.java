@@ -85,6 +85,14 @@ public class TakeAsRefereeCommand extends Command {
             return;
         }
 
+        // Check if the tournament is properly setup
+        if (!TournamentHelper.isTournamentProperlySetup(existingTournament)) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("The tournament hasn't been setup yet.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
         CommandParameter commandParamMatchId = commandParams.stream().findFirst().orElse(null);
 
         // Prevent empty input
