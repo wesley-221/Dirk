@@ -151,6 +151,8 @@ public abstract class Command {
             });
 
             mainMessage.append("`\n").append(arguments);
+        } else {
+            mainMessage.append("`\n");
         }
 
         return mainMessage.toString();

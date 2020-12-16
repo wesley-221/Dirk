@@ -35,10 +35,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Component
 public class HelpCommand extends Command {
@@ -79,19 +77,65 @@ public class HelpCommand extends Command {
 
         // Show command list
         if (commandName.isOptional()) {
-            StringBuilder commandString = new StringBuilder("To execute a command, use `")
+            List<StringBuilder> allCommandStrings = new ArrayList<>();
+
+            StringBuilder firstStringBuilder = new StringBuilder("To execute a command, use `")
                     .append(discordCommandPrefix)
                     .append("commandname`.\n")
                     .append("Want to know more about a specific command? Run `")
                     .append(discordCommandPrefix)
                     .append("help <commandname>` to view detailed information about the command. \n");
 
+            allCommandStrings.add(firstStringBuilder);
+
             allCommandsPerGroup.forEach((s, commands) -> {
-                commandString.append("\n__").append(s).append("__\n");
-                commands.forEach(command -> commandString.append("**").append(command.getCommandName()).append(":** ").append(command.getDescription()).append("\n"));
+                StringBuilder lastStringBuilderFromList = allCommandStrings.get(allCommandStrings.size() - 1);
+
+                if (lastStringBuilderFromList.length() > 1000) {
+                    StringBuilder newStringBuilder = new StringBuilder();
+
+                    newStringBuilder.append("\n__").append(s).append("__\n");
+                    commands.forEach(command -> newStringBuilder.append("**").append(command.getCommandName()).append(":** ").append(command.getDescription()).append("\n"));
+
+                    allCommandStrings.add(newStringBuilder);
+                } else {
+                    lastStringBuilderFromList.append("\n__").append(s).append("__\n");
+                    commands.forEach(command -> lastStringBuilderFromList.append("**").append(command.getCommandName()).append(":** ").append(command.getDescription()).append("\n"));
+                }
             });
 
-            messageCreateEvent.getChannel().sendMessage(commandString.toString());
+            try {
+                for (StringBuilder commandString : allCommandStrings) {
+                    if (commandString.length() > 1500) {
+                        String[] commandStringSplit = commandString.toString().split("(\n|\r|\r\n)", Pattern.DOTALL);
+                        List<StringBuilder> commandStringSplitBylength = new ArrayList<>(Collections.singleton(new StringBuilder()));
+
+                        for (String split : commandStringSplit) {
+                            StringBuilder lastString = commandStringSplitBylength.get(commandStringSplitBylength.size() - 1);
+
+                            if (lastString.length() + split.length() > 1500) {
+                                commandStringSplitBylength.add(new StringBuilder(split).append("\n"));
+                            } else {
+                                lastString.append(split).append("\n");
+                            }
+                        }
+
+                        for (StringBuilder split : commandStringSplitBylength) {
+                            messageCreateEvent
+                                    .getMessageAuthor()
+                                    .asUser()
+                                    .ifPresent(user -> user.sendMessage(split.toString()));
+                        }
+                    } else {
+                        messageCreateEvent
+                                .getMessageAuthor()
+                                .asUser()
+                                .ifPresent(user -> user.sendMessage(commandString.toString()));
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
         // Show specific command
         else {
