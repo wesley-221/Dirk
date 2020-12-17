@@ -30,7 +30,6 @@ import com.dirk.models.OsuAuthentication;
 import com.dirk.models.OsuMeHelper;
 import com.dirk.models.OsuOauthHelper;
 import com.dirk.repositories.OsuAuthRepository;
-import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +102,7 @@ public class OsuAuthController {
                 Server server = discordConfiguration.getDiscordApi().getServerById(osuAuthentication.getServerSnowflake()).orElse(null);
 
                 if (server != null) {
-                    User user = discordConfiguration.getDiscordApi().getCachedUserById(osuAuthentication.getUserSnowflake()).orElse(null);
+                    User user = server.getMemberById(osuAuthentication.getUserSnowflake()).orElse(null);
 
                     if (user != null) {
                         final String OSU_OAUTH_URL = "https://osu.ppy.sh/oauth/token";
@@ -144,11 +143,7 @@ public class OsuAuthController {
                                 user.updateNickname(server, osuData.getUsername(), "Update username through osu! authentication");
                                 user.sendMessage("✓ You have been successfully verified as **" + osuData.getUsername() + "**.");
 
-                                Role verificationRole = discordConfiguration.getDiscordApi().getRolesByName(SetupVerificationCommand.VERIFIED_ROLE).stream().findFirst().orElse(null);
-
-                                if (verificationRole != null) {
-                                    user.addRole(verificationRole);
-                                }
+                                server.getRolesByName(SetupVerificationCommand.VERIFIED_ROLE).stream().findFirst().ifPresent(user::addRole);
 
                                 osuAuthRepository.delete(osuAuthentication);
 
