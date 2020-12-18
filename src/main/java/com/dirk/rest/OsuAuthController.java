@@ -84,7 +84,7 @@ public class OsuAuthController {
             return "Found user!";
         }
 
-        return "Something went wrong.";
+        return "The link you opened is either invalid or expired.";
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/auth")
@@ -155,6 +155,6 @@ public class OsuAuthController {
             }
         }
 
-        return "Something went wrong.";
+        return "The link you opened is either invalid or expired.";
     }
 }

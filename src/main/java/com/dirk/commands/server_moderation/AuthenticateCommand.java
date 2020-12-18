@@ -29,6 +29,7 @@ import com.dirk.models.OsuAuthentication;
 import com.dirk.models.command.Command;
 import com.dirk.models.command.CommandParameter;
 import com.dirk.repositories.OsuAuthRepository;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
@@ -70,12 +71,20 @@ public class AuthenticateCommand extends Command {
             return;
         }
 
+        ServerTextChannel textChannel = server.getTextChannelsByName(SetupVerificationCommand.VERIFICATION_CHANNEL_NAME).stream().findFirst().orElse(null);
         Role verifiedRole = server.getRolesByName(SetupVerificationCommand.VERIFIED_ROLE).stream().findFirst().orElse(null);
 
         if (verifiedRole == null) {
             messageCreateEvent
                     .getChannel()
                     .sendMessage(EmbedHelper.genericErrorEmbed("This server hasn't been setup for verification yet.", messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
+            return;
+        }
+
+        if (textChannel != null && messageCreateEvent.getChannel().getId() != textChannel.getId()) {
+            messageCreateEvent
+                    .getChannel()
+                    .sendMessage(EmbedHelper.genericErrorEmbed("You can only use this command in " + textChannel.getMentionTag(), messageCreateEvent.getMessageAuthor().getDiscriminatedName()));
             return;
         }
 
@@ -94,12 +103,19 @@ public class AuthenticateCommand extends Command {
         osuAuthRepository.save(osuAuthentication);
 
         messageCreateEvent
+                .getChannel()
+                .sendMessage("<@" + messageCreateEvent.getMessageAuthor().getId() + ">, the authentication link has been sent to you privately. \n\n" +
+                        "**If you didn't receive a DM, enable the following setting: Settings > Privacy & Safety > Allow direct messages from server members.** \n" +
+                        "Once you've received the DM and followed the link, you can disable this setting again.");
+
+        messageCreateEvent
                 .getMessageAuthor()
                 .asUser()
                 .ifPresent(user -> user.sendMessage("The server **" + messageCreateEvent.getServer().get().getName() + "** wants to know who you are. \n" +
                         "This link will redirect you to the official osu! website, asking you to give permission to **" + botName + "** so he can read your profile. \n" +
                         "Once the authentication process is done, he will then change your name to whatever he gets off your profile. \n\n" +
-                        "Click on the following link to start the authentication process: " + webServer + "/auth/" + osuAuthentication.getUserSecretAsURLSafeString()));
+                        "Click on the following link to start the authentication process: " + webServer + "/auth/" + osuAuthentication.getUserSecretAsURLSafeString() + "\n" +
+                        "__**Note:** This link will expire in **1 hour**.__"));
     }
 
     @Override
