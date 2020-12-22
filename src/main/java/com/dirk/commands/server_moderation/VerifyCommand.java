@@ -25,10 +25,10 @@
 package com.dirk.commands.server_moderation;
 
 import com.dirk.helper.EmbedHelper;
-import com.dirk.models.OsuAuthentication;
+import com.dirk.models.OsuVerification;
 import com.dirk.models.command.Command;
 import com.dirk.models.command.CommandParameter;
-import com.dirk.repositories.OsuAuthRepository;
+import com.dirk.repositories.OsuVerifyRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
@@ -44,22 +44,22 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class AuthenticateCommand extends Command {
-    OsuAuthRepository osuAuthRepository;
+public class VerifyCommand extends Command {
+    OsuVerifyRepository osuVerifyRepository;
     @Value("${webserver.url}")
     String webServer;
     @Value("${bot.name}")
     String botName;
 
     @Autowired
-    public AuthenticateCommand(OsuAuthRepository osuAuthRepository) {
-        this.commandName = "authenticate";
-        this.description = "Authenticate yourself through the osu! api";
+    public VerifyCommand(OsuVerifyRepository osuVerifyRepository) {
+        this.commandName = "verify";
+        this.description = "Verify yourself through the osu! api";
         this.group = "Server moderation";
 
         this.guildOnly = true;
 
-        this.osuAuthRepository = osuAuthRepository;
+        this.osuVerifyRepository = osuVerifyRepository;
     }
 
     @Override
@@ -88,33 +88,34 @@ public class AuthenticateCommand extends Command {
             return;
         }
 
-        OsuAuthentication osuAuthentication = new OsuAuthentication();
+        OsuVerification osuVerification = new OsuVerification();
 
-        osuAuthentication.setUserSnowflake(messageCreateEvent.getMessageAuthor().getIdAsString());
-        osuAuthentication.setServerSnowflake(messageCreateEvent.getServer().get().getIdAsString());
-        osuAuthentication.setUserSecret(UUID.randomUUID());
+        osuVerification.setUserSnowflake(messageCreateEvent.getMessageAuthor().getIdAsString());
+        osuVerification.setServerSnowflake(messageCreateEvent.getServer().get().getIdAsString());
+        osuVerification.setUserSecret(UUID.randomUUID());
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.HOUR_OF_DAY, 1);
 
-        osuAuthentication.setExpireDate(calendar.getTime());
+        osuVerification.setExpireDate(calendar.getTime());
 
-        osuAuthRepository.save(osuAuthentication);
+        osuVerifyRepository.save(osuVerification);
 
         messageCreateEvent
                 .getChannel()
-                .sendMessage("<@" + messageCreateEvent.getMessageAuthor().getId() + ">, the authentication link has been sent to you privately. \n\n" +
+                .sendMessage("<@" + messageCreateEvent.getMessageAuthor().getId() + ">, the verification link has been sent to you privately. \n\n" +
                         "**If you didn't receive a DM, enable the following setting: Settings > Privacy & Safety > Allow direct messages from server members.** \n" +
+                        "**Once you have changed this setting, re-run the command again.** This will send a new link for you to verify yourself.\n" +
                         "Once you've received the DM and followed the link, you can disable this setting again.");
 
         messageCreateEvent
                 .getMessageAuthor()
                 .asUser()
                 .ifPresent(user -> user.sendMessage("The server **" + messageCreateEvent.getServer().get().getName() + "** wants to know who you are. \n" +
-                        "This link will redirect you to the official osu! website, asking you to give permission to **" + botName + "** so he can read your profile. \n" +
+                        "This link will redirect you to the **official osu! website**, asking you to give permission to **" + botName + "** so he can read your profile. \n" +
                         "Once the authentication process is done, he will then change your name to whatever he gets off your profile. \n\n" +
-                        "Click on the following link to start the authentication process: " + webServer + "/auth/" + osuAuthentication.getUserSecretAsURLSafeString() + "\n" +
+                        "Click on the following link to start the authentication process: " + webServer + "/verify/" + osuVerification.getUserSecretAsURLSafeString() + "\n" +
                         "__**Note:** This link will expire in **1 hour**.__"));
     }
 

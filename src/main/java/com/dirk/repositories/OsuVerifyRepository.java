@@ -24,11 +24,11 @@
 
 package com.dirk.repositories;
 
-import com.dirk.models.OsuAuthentication;
+import com.dirk.models.OsuVerification;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.UUID;
 
-public interface OsuAuthRepository extends CrudRepository<OsuAuthentication, Integer> {
-    OsuAuthentication getByUserSecret(UUID secret);
+public interface OsuVerifyRepository extends CrudRepository<OsuVerification, Integer> {
+    OsuVerification getByUserSecret(UUID secret);
 }

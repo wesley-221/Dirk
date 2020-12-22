@@ -40,7 +40,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-public class OsuAuthentication {
+public class OsuVerification {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -52,7 +52,7 @@ public class OsuAuthentication {
     private UUID userSecret;
     private Date expireDate;
 
-    public OsuAuthentication() {
+    public OsuVerification() {
     }
 
     public static UUID getUserSecretFromURLSafeString(String urlSafeString) {

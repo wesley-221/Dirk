@@ -26,10 +26,10 @@ package com.dirk.rest;
 
 import com.dirk.DiscordConfiguration;
 import com.dirk.commands.server_moderation.SetupVerificationCommand;
-import com.dirk.models.OsuAuthentication;
+import com.dirk.models.OsuVerification;
 import com.dirk.models.OsuMeHelper;
 import com.dirk.models.OsuOauthHelper;
-import com.dirk.repositories.OsuAuthRepository;
+import com.dirk.repositories.OsuVerifyRepository;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +48,8 @@ import java.util.Date;
 import java.util.UUID;
 
 @RestController
-public class OsuAuthController {
-    OsuAuthRepository osuAuthRepository;
+public class OsuVerifyController {
+    OsuVerifyRepository osuVerifyRepository;
     DiscordConfiguration discordConfiguration;
 
     @Value("${osu.oauth.client_id}")
@@ -62,17 +62,17 @@ public class OsuAuthController {
     String clientSecret;
 
     @Autowired
-    public OsuAuthController(OsuAuthRepository osuAuthRepository, DiscordConfiguration discordConfiguration) {
-        this.osuAuthRepository = osuAuthRepository;
+    public OsuVerifyController(OsuVerifyRepository osuVerifyRepository, DiscordConfiguration discordConfiguration) {
+        this.osuVerifyRepository = osuVerifyRepository;
         this.discordConfiguration = discordConfiguration;
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/auth/{secret}")
+    @RequestMapping(method = RequestMethod.GET, path = "/verify/{secret}")
     public String index(HttpServletRequest request, HttpServletResponse response, @PathVariable String secret) {
-        UUID userSecret = OsuAuthentication.getUserSecretFromURLSafeString(secret);
-        OsuAuthentication osuAuthentication = osuAuthRepository.getByUserSecret(userSecret);
+        UUID userSecret = OsuVerification.getUserSecretFromURLSafeString(secret);
+        OsuVerification osuVerification = osuVerifyRepository.getByUserSecret(userSecret);
 
-        if (osuAuthentication != null) {
+        if (osuVerification != null) {
             request.getSession().setAttribute("secret", secret);
 
             try {
@@ -87,22 +87,22 @@ public class OsuAuthController {
         return "The link you opened is either invalid or expired.";
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/auth")
+    @RequestMapping(method = RequestMethod.GET, path = "/verify")
     @Transactional
     public String index(HttpServletRequest request, @RequestParam String code) {
         String secret = (String) request.getSession().getAttribute("secret");
 
-        UUID userSecret = OsuAuthentication.getUserSecretFromURLSafeString(secret);
-        OsuAuthentication osuAuthentication = osuAuthRepository.getByUserSecret(userSecret);
+        UUID userSecret = OsuVerification.getUserSecretFromURLSafeString(secret);
+        OsuVerification osuVerification = osuVerifyRepository.getByUserSecret(userSecret);
 
         // Check if there is an entry for the current user
-        if (osuAuthentication != null) {
+        if (osuVerification != null) {
             // Check if the date is still valid
-            if (osuAuthentication.getExpireDate().after(new Date())) {
-                Server server = discordConfiguration.getDiscordApi().getServerById(osuAuthentication.getServerSnowflake()).orElse(null);
+            if (osuVerification.getExpireDate().after(new Date())) {
+                Server server = discordConfiguration.getDiscordApi().getServerById(osuVerification.getServerSnowflake()).orElse(null);
 
                 if (server != null) {
-                    User user = server.getMemberById(osuAuthentication.getUserSnowflake()).orElse(null);
+                    User user = server.getMemberById(osuVerification.getUserSnowflake()).orElse(null);
 
                     if (user != null) {
                         final String OSU_OAUTH_URL = "https://osu.ppy.sh/oauth/token";
@@ -145,7 +145,7 @@ public class OsuAuthController {
 
                                 server.getRolesByName(SetupVerificationCommand.VERIFIED_ROLE).stream().findFirst().ifPresent(user::addRole);
 
-                                osuAuthRepository.delete(osuAuthentication);
+                                osuVerifyRepository.delete(osuVerification);
 
                                 return "✓ You have been successfully verified as " + osuData.getUsername() + ". You can now close this window.";
                             }
