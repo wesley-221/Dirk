@@ -64,7 +64,7 @@ public class ServerTrafficListener implements ServerMemberJoinListener, ServerMe
             ServerTextChannel textChannel = event.getServer().getTextChannelsByName(SetupVerificationCommand.VERIFICATION_CHANNEL_NAME).stream().findFirst().orElse(null);
 
             if (textChannel != null) {
-                textChannel.sendMessage("Hello " + event.getUser().getMentionTag() + "! In order for you to view all channels, run the command `d!authenticate` and follow the instructions.");
+                textChannel.sendMessage("Hello " + event.getUser().getMentionTag() + "! In order for you to view all channels, run the command `d!verify` and follow the instructions.");
             }
         }
     }
