@@ -26,10 +26,12 @@ package com.dirk.rest;
 
 import com.dirk.DiscordConfiguration;
 import com.dirk.commands.server_moderation.SetupVerificationCommand;
+import com.dirk.helper.DiscordWebhook;
 import com.dirk.models.OsuVerification;
 import com.dirk.models.OsuMeHelper;
 import com.dirk.models.OsuOauthHelper;
 import com.dirk.repositories.OsuVerifyRepository;
+import com.google.common.base.Strings;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -97,15 +101,24 @@ public class OsuVerifyController {
 
         // Check if there is an entry for the current user
         if (osuVerification != null) {
+            DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/795652846916730890/B9RzxiPLq_HbgFKX-AZZMKlebaiVvp5uIp_Yg9siUfcsN8eVj2gKRn4H_1eGs-AGwZBe");
+            List<String> stepsCompleted = new ArrayList<>();
+
             // Check if the date is still valid
             if (osuVerification.getExpireDate().after(new Date())) {
                 Server server = discordConfiguration.getDiscordApi().getServerById(osuVerification.getServerSnowflake()).orElse(null);
 
+                stepsCompleted.add("Valid verification date");
+
                 if (server != null) {
                     User user = server.getMemberById(osuVerification.getUserSnowflake()).orElse(null);
 
+                    stepsCompleted.add("Server found: " + server.getName());
+
                     if (user != null) {
                         final String OSU_OAUTH_URL = "https://osu.ppy.sh/oauth/token";
+
+                        stepsCompleted.add("User found: " + user.getDiscriminatedName());
 
                         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
 
@@ -128,6 +141,8 @@ public class OsuVerifyController {
                                 .blockLast();
 
                         if (requestToken != null) {
+                            stepsCompleted.add("Successfully retrieved osu!auth request token found");
+
                             // Request /me data
                             OsuMeHelper osuData = WebClient
                                     .create("https://osu.ppy.sh/api/v2/me")
@@ -140,6 +155,9 @@ public class OsuVerifyController {
                                     .blockLast();
 
                             if (osuData != null) {
+                                stepsCompleted.add("Successfully retrieved osu /me data");
+                                stepsCompleted.add("osu! username: " + osuData.getUsername());
+
                                 user.updateNickname(server, osuData.getUsername(), "Update username through osu! authentication");
                                 user.sendMessage("✓ You have been successfully verified as **" + osuData.getUsername() + "**.");
 
@@ -147,11 +165,27 @@ public class OsuVerifyController {
 
                                 osuVerifyRepository.delete(osuVerification);
 
+                                webhook.setContent(String.join("\n\r", stepsCompleted));
+
+                                try {
+                                    webhook.execute();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                }
+
                                 return "✓ You have been successfully verified as " + osuData.getUsername() + ". You can now close this window.";
                             }
                         }
                     }
                 }
+            }
+
+            webhook.setContent(String.join("\n\r", stepsCompleted));
+
+            try {
+                webhook.execute();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
 
