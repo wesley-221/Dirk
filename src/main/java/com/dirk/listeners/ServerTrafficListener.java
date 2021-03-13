@@ -27,7 +27,9 @@ package com.dirk.listeners;
 import com.dirk.commands.server_moderation.SetupVerificationCommand;
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.RegisterListener;
+import com.dirk.models.entities.ServerJoinRole;
 import com.dirk.models.entities.ServerTraffic;
+import com.dirk.repositories.ServerJoinRoleRepository;
 import com.dirk.repositories.ServerTrafficRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
@@ -41,15 +43,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServerTrafficListener implements ServerMemberJoinListener, ServerMemberLeaveListener, RegisterListener {
     private final ServerTrafficRepository serverTrafficRepository;
+    private final ServerJoinRoleRepository serverJoinRoleRepository;
 
     @Autowired
-    public ServerTrafficListener(ServerTrafficRepository serverTrafficRepository) {
+    public ServerTrafficListener(ServerTrafficRepository serverTrafficRepository, ServerJoinRoleRepository serverJoinRoleRepository) {
         this.serverTrafficRepository = serverTrafficRepository;
+        this.serverJoinRoleRepository = serverJoinRoleRepository;
     }
 
     @Override
     public void onServerMemberJoin(ServerMemberJoinEvent event) {
         ServerTraffic serverTraffic = serverTrafficRepository.findByServerSnowflake(event.getServer().getId());
+        ServerJoinRole serverJoinRole = serverJoinRoleRepository.findByServerSnowflake(event.getServer().getIdAsString());
 
         if (serverTraffic != null) {
             if (serverTraffic.getShowJoining()) {
@@ -66,6 +71,14 @@ public class ServerTrafficListener implements ServerMemberJoinListener, ServerMe
             if (textChannel != null) {
                 textChannel.sendMessage("Hello " + event.getUser().getMentionTag() + "! In order for you to view all channels, run the command `d!verify` and follow the instructions.");
             }
+        }
+
+        if (serverJoinRole != null) {
+            event.getServer()
+                    .getRoleById(serverJoinRole.getRoleSnowflake()).stream().findFirst()
+                    .ifPresent(joinRole -> event.getServer()
+                            .getMemberById(event.getUser().getId())
+                            .ifPresent(user -> user.addRole(joinRole)));
         }
     }
 
