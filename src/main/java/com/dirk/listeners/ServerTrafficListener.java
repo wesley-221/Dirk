@@ -26,6 +26,7 @@ package com.dirk.listeners;
 
 import com.dirk.commands.server_moderation.SetupVerificationCommand;
 import com.dirk.helper.EmbedHelper;
+import com.dirk.helper.Log;
 import com.dirk.helper.RegisterListener;
 import com.dirk.models.entities.ServerJoinRole;
 import com.dirk.models.entities.ServerTraffic;
@@ -33,12 +34,15 @@ import com.dirk.repositories.ServerJoinRoleRepository;
 import com.dirk.repositories.ServerTrafficRepository;
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 import org.javacord.api.listener.server.member.ServerMemberJoinListener;
 import org.javacord.api.listener.server.member.ServerMemberLeaveListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class ServerTrafficListener implements ServerMemberJoinListener, ServerMemberLeaveListener, RegisterListener {
@@ -74,11 +78,24 @@ public class ServerTrafficListener implements ServerMemberJoinListener, ServerMe
         }
 
         if (serverJoinRole != null) {
-            event.getServer()
-                    .getRoleById(serverJoinRole.getRoleSnowflake()).stream().findFirst()
-                    .ifPresent(joinRole -> event.getServer()
-                            .getMemberById(event.getUser().getId())
-                            .ifPresent(user -> user.addRole(joinRole)));
+            Optional<Role> role = event.getServer().getRoleById(serverJoinRole.getRoleSnowflake()).stream().findFirst();
+
+            if (role.isPresent()) {
+                Optional<User> user = event.getServer().getMemberById(event.getUser().getId()).stream().findFirst();
+
+                if (user.isPresent()) {
+                    user.get().addRole(role.get()).whenComplete((unused, throwable) -> {
+                        if (throwable != null) {
+                            Log.error("Unable to add the role to \"" + event.getUser().getId() + "\" // \"" + event.getUser().getDiscriminatedName() + "\"");
+                            Log.error(throwable.getMessage());
+                        }
+                    });
+                } else {
+                    Log.error("Could not find the user \"" + event.getUser().getId() + "\" // \"" + event.getUser().getDiscriminatedName() + "\"");
+                }
+            } else {
+                Log.error("Could not find role \"" + serverJoinRole.getRoleSnowflake() + "\"");
+            }
         }
     }
 
