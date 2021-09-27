@@ -39,6 +39,7 @@ import org.javacord.api.event.server.member.ServerMemberJoinEvent;
 import org.javacord.api.event.server.member.ServerMemberLeaveEvent;
 import org.javacord.api.listener.server.member.ServerMemberJoinListener;
 import org.javacord.api.listener.server.member.ServerMemberLeaveListener;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -83,16 +84,10 @@ public class ServerTrafficListener implements ServerMemberJoinListener, ServerMe
             if (role.isPresent()) {
                 Optional<User> user = event.getServer().getMemberById(event.getUser().getId()).stream().findFirst();
 
-                if (user.isPresent()) {
-                    user.get().addRole(role.get()).whenComplete((unused, throwable) -> {
-                        if (throwable != null) {
-                            Log.error("Unable to add the role to \"" + event.getUser().getId() + "\" // \"" + event.getUser().getDiscriminatedName() + "\"");
-                            Log.error(throwable.getMessage());
-                        }
-                    });
-                } else {
-                    Log.error("Could not find the user \"" + event.getUser().getId() + "\" // \"" + event.getUser().getDiscriminatedName() + "\"");
-                }
+                user.ifPresent(foundUser ->
+                        foundUser.addRole(role.get())
+                                .thenAccept(result -> System.out.println("Added role " + role.get().getName() + " to " + foundUser.getDiscriminatedName()))
+                                .exceptionally(ExceptionLogger.get()));
             } else {
                 Log.error("Could not find role \"" + serverJoinRole.getRoleSnowflake() + "\"");
             }

@@ -27,13 +27,13 @@ package com.dirk.rest;
 import com.dirk.DiscordConfiguration;
 import com.dirk.commands.server_moderation.SetupVerificationCommand;
 import com.dirk.helper.DiscordWebhook;
-import com.dirk.models.OsuVerification;
 import com.dirk.models.OsuMeHelper;
 import com.dirk.models.OsuOauthHelper;
+import com.dirk.models.OsuVerification;
 import com.dirk.repositories.OsuVerifyRepository;
-import com.google.common.base.Strings;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -158,10 +158,15 @@ public class OsuVerifyController {
                                 stepsCompleted.add("Successfully retrieved osu /me data");
                                 stepsCompleted.add("osu! username: " + osuData.getUsername());
 
-                                user.updateNickname(server, osuData.getUsername(), "Update username through osu! authentication");
+                                user.updateNickname(server, osuData.getUsername(), "Update username through osu! authentication")
+                                        .thenAccept(result -> System.out.println("Updated " + user.getDiscriminatedName() + " username to " + osuData.getUsername()))
+                                        .exceptionally(ExceptionLogger.get());
                                 user.sendMessage("✓ You have been successfully verified as **" + osuData.getUsername() + "**.");
 
-                                server.getRolesByName(SetupVerificationCommand.VERIFIED_ROLE).stream().findFirst().ifPresent(user::addRole);
+                                server.getRolesByName(SetupVerificationCommand.VERIFIED_ROLE).stream().findFirst().ifPresent(role ->
+                                        user.addRole(role)
+                                                .thenAccept(result -> System.out.println("Added verified role to " + user.getDiscriminatedName()))
+                                                .exceptionally(ExceptionLogger.get()));
 
                                 osuVerifyRepository.delete(osuVerification);
 
