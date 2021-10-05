@@ -33,6 +33,7 @@ import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.PermissionsBuilder;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.util.logging.ExceptionLogger;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -68,26 +69,33 @@ public class CreateTeamCommand extends Command {
 
         server.createRoleBuilder()
                 .setColor(new Color(96, 125, 136))
-                .setName(teamName).create().whenComplete((role, throwable) -> {
-            server.createChannelCategoryBuilder()
-                    .setName(teamName)
-                    .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
-                    .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES).build()).create().whenComplete((channelCategory, throwable1) -> {
-                server.createTextChannelBuilder().setName(teamName).setCategory(channelCategory).create();
-                server.createVoiceChannelBuilder().setName(teamName).setCategory(channelCategory).create();
-            });
+                .setName(teamName)
+                .setMentionable(true)
+                .create().thenAccept(role -> {
+                    server.createChannelCategoryBuilder()
+                            .setName(teamName)
+                            .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
+                            .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
+                            .create()
+                            .whenComplete((channelCategory, throwable1) -> {
+                                server.createTextChannelBuilder().setName(teamName).setCategory(channelCategory).create();
+                                server.createVoiceChannelBuilder().setName(teamName).setCategory(channelCategory).create();
+                            });
 
-            highlightedUsers.forEach(userString -> {
-                userString = userString.replace("<", "")
-                        .replace("@", "")
-                        .replace(">", "")
-                        .replace("!", "");
+                    highlightedUsers.forEach(userString -> {
+                        userString = userString.replace("<", "")
+                                .replace("@", "")
+                                .replace(">", "")
+                                .replace("!", "");
 
-                server.getMemberById(userString).ifPresent(user1 -> user1.addRole(role));
-            });
-        }).whenComplete((role, throwable) ->
-                messageCreateEvent
-                        .getChannel()
-                        .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully created the role, voice and text channel for `" + teamName + "`! \n\nAccess has been given to " + String.join(", ", highlightedUsers) + ".", messageCreateEvent.getMessageAuthor().getDiscriminatedName())));
+                        server.getMemberById(userString).ifPresent(user1 ->
+                                user1.addRole(role)
+                                        .thenAccept(unused -> System.out.println("Successfully assigned role to " + user1.getDiscriminatedName()))
+                                        .exceptionally(ExceptionLogger.get()));
+                    });
+                }).whenComplete((role, throwable) ->
+                        messageCreateEvent
+                                .getChannel()
+                                .sendMessage(EmbedHelper.genericSuccessEmbed("Successfully created the role, voice and text channel for `" + teamName + "`! \n\nAccess has been given to " + String.join(", ", highlightedUsers) + ".", messageCreateEvent.getMessageAuthor().getDiscriminatedName())));
     }
 }
