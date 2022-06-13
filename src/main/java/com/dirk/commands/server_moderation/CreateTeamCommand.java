@@ -29,6 +29,7 @@ import com.dirk.models.command.Command;
 import com.dirk.models.command.CommandArgument;
 import com.dirk.models.command.CommandArgumentType;
 import com.dirk.models.command.CommandParameter;
+import org.javacord.api.entity.channel.ChannelCategory;
 import org.javacord.api.entity.permission.PermissionType;
 import org.javacord.api.entity.permission.PermissionsBuilder;
 import org.javacord.api.entity.server.Server;
@@ -43,6 +44,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class CreateTeamCommand extends Command {
+    private final String TEAM_CATEGORY = "Teams";
+    private final String TEAM_VOICE_CATEGORY = "Team voice";
+
     public CreateTeamCommand() {
         this.commandName = "createteam";
         this.description = "Creates a text and voice channel and adds the highlighted users to the team.";
@@ -72,15 +76,63 @@ public class CreateTeamCommand extends Command {
                 .setName(teamName)
                 .setMentionable(true)
                 .create().thenAccept(role -> {
-                    server.createChannelCategoryBuilder()
-                            .setName(teamName)
-                            .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
-                            .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
-                            .create()
-                            .whenComplete((channelCategory, throwable1) -> {
-                                server.createTextChannelBuilder().setName(teamName).setCategory(channelCategory).create();
-                                server.createVoiceChannelBuilder().setName(teamName).setCategory(channelCategory).create();
-                            });
+                    if (server.getChannelCategoriesByName(TEAM_CATEGORY).isEmpty()) {
+                        server.createChannelCategoryBuilder()
+                                .setName(TEAM_CATEGORY)
+                                .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
+                                .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
+                                .create()
+                                .whenComplete((createdChannelCategory, throwable) -> {
+                                    server.createTextChannelBuilder()
+                                            .setName(teamName)
+                                            .setCategory(createdChannelCategory)
+                                            .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
+                                            .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
+                                            .create();
+                                });
+                    } else {
+                        ChannelCategory channelCategory = server.getChannelCategoriesByName(TEAM_CATEGORY).get(0);
+                        channelCategory
+                                .createUpdater()
+                                .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
+                                .update();
+
+                        server.createTextChannelBuilder()
+                                .setName(teamName)
+                                .setCategory(channelCategory)
+                                .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
+                                .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
+                                .create();
+                    }
+
+                    if (server.getChannelCategoriesByName(TEAM_VOICE_CATEGORY).isEmpty()) {
+                        server.createChannelCategoryBuilder()
+                                .setName(TEAM_VOICE_CATEGORY)
+                                .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
+                                .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES).build())
+                                .create()
+                                .whenComplete((createdChannelCategory, throwable) -> {
+                                    server.createVoiceChannelBuilder()
+                                            .setName(teamName)
+                                            .setCategory(createdChannelCategory)
+                                            .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
+                                            .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
+                                            .create();
+                                });
+                    } else {
+                        ChannelCategory channelCategory = server.getChannelCategoriesByName(TEAM_VOICE_CATEGORY).get(0);
+                        channelCategory
+                                .createUpdater()
+                                .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES).build())
+                                .update();
+
+                        server.createVoiceChannelBuilder()
+                                .setName(teamName)
+                                .setCategory(channelCategory)
+                                .addPermissionOverwrite(server.getEveryoneRole(), new PermissionsBuilder().setDenied(PermissionType.READ_MESSAGES).build())
+                                .addPermissionOverwrite(role, new PermissionsBuilder().setAllowed(PermissionType.READ_MESSAGES, PermissionType.MANAGE_MESSAGES).build())
+                                .create();
+                    }
 
                     highlightedUsers.forEach(userString -> {
                         userString = userString.replace("<", "")
