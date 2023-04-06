@@ -1,56 +1,12 @@
-#
-# MIT License
-#
-# Copyright (c) 2020 Wesley
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#
-
-spring.jpa.hibernate.ddl-auto=update
 logging.level.root=info
 
-# The name and generic information for the bot
-bot.name = Dirk
-bot.github = https://github.com/wesley-221/Dirk
-bot.github-issues = https://github.com/wesley-221/Dirk/issues
+discord.token=
+discord.command-prefix=!
 
-# Discord related settings
-#############################
-# Discord development api key
-discord.api.key =
-
-# If the bot is in production state
-discord.production = false
-
-# Command prefix
-discord.prefix = d!
-
-# The startup status
-discord.status = Type d!help for help
-
-# Database related settings
-#############################
-# Database url
-database.url=jdbc:mysql://127.0.0.1:3306/dirk
-
-# Database username
-database.username=root
-
-# Database password
+database.url=
+database.username=
 database.password=
+
+bot.name=wyBin
+bot.github=https://github.com/wesley-221/wyBinBot
+bot.issues=https://github.com/wesley-221/wyBinBot/issues

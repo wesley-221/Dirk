@@ -4,8 +4,8 @@ plugins {
     id 'java'
 }
 
-group = 'com.dirk'
-version = '0.0.1-SNAPSHOT'
+group 'com.dirk'
+version '1.0-SNAPSHOT'
 sourceCompatibility = '11'
 
 repositories {
@@ -13,6 +13,10 @@ repositories {
 }
 
 dependencies {
+    // Javacord
+    implementation 'org.javacord:javacord:3.5.0'
+
+    // Spring boot
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     runtimeOnly 'mysql:mysql-connector-java'
@@ -20,30 +24,10 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'org.springframework.security:spring-security-test'
-    implementation 'org.javacord:javacord:3.1.1'
-
-	// Webserver
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-
-    // Webclient
-    compile 'org.springframework.boot:spring-boot-starter-webflux'
-    compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
     // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
-    testCompileOnly 'org.projectlombok:lombok:1.18.16'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
-
-    // Google api
-    compile 'com.google.api-client:google-api-client:1.30.4'
-    compile 'com.google.oauth-client:google-oauth-client-jetty:1.30.6'
-    compile 'com.google.apis:google-api-services-sheets:v4-rev581-1.25.0'
-}
-
-test {
-    useJUnitPlatform()
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }

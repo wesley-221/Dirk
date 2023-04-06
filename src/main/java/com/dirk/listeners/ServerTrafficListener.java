@@ -24,7 +24,6 @@
 
 package com.dirk.listeners;
 
-import com.dirk.commands.server_moderation.SetupVerificationCommand;
 import com.dirk.helper.EmbedHelper;
 import com.dirk.helper.Log;
 import com.dirk.helper.RegisterListener;
@@ -32,7 +31,6 @@ import com.dirk.models.entities.ServerJoinRole;
 import com.dirk.models.entities.ServerTraffic;
 import com.dirk.repositories.ServerJoinRoleRepository;
 import com.dirk.repositories.ServerTrafficRepository;
-import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.server.member.ServerMemberJoinEvent;
@@ -64,17 +62,6 @@ public class ServerTrafficListener implements ServerMemberJoinListener, ServerMe
         if (serverTraffic != null) {
             if (serverTraffic.getShowJoining()) {
                 event.getServer().getTextChannelById(serverTraffic.getChannelSnowflake()).ifPresent(serverTextChannel -> serverTextChannel.sendMessage(EmbedHelper.personJoinedServer(serverTraffic.getJoinMessage(), event.getUser())));
-            }
-        }
-
-        // Check for the verifying process
-        Role verifiedRole = event.getServer().getRolesByName(SetupVerificationCommand.VERIFIED_ROLE).stream().findFirst().orElse(null);
-
-        if (verifiedRole != null) {
-            ServerTextChannel textChannel = event.getServer().getTextChannelsByName(SetupVerificationCommand.VERIFICATION_CHANNEL_NAME).stream().findFirst().orElse(null);
-
-            if (textChannel != null) {
-                textChannel.sendMessage("Hello " + event.getUser().getMentionTag() + "! In order for you to view all channels, run the command `d!verify` and follow the instructions.");
             }
         }
 
